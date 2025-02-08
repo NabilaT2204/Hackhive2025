@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import requests
 import time
-
+import json
 # Your login credentials
 USERNAME = "100871157"
 PASSWORD = "crashergames"
@@ -65,6 +65,7 @@ try:
     
     
     term_button = wait.until(EC.presence_of_element_located((By.ID, "term-go")))
+
     while True:
         try:
             if term_button.is_displayed():
@@ -82,34 +83,70 @@ try:
   
     headers = {"User-Agent": "Mozilla/5.0"}
     
-
+    count = 0
     # Print retrieved JSON data
     for url in json_urls:
+        
         driver.get("https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/classSearch/classSearch")  # Refresh the page before each request
         
         response = requests.get(url, headers=headers, cookies=session_cookie)
         
         if response.status_code == 200:
-            course_info = response.json().get("data", [])
             
+            course_info = response.json()
+            print(f"Retrieved data from URL: {url}")
             if course_info:
-                print(f"Data found for URL: {course_info}")
-                #course_info = response.json()["data"][0]
-                #course_reference_number = course_info["courseReferenceNumber"]
-                #display_name = course_info["faculty"][0]["displayName"]
-                # Iterate over all meeting times
-                #for meeting in course_info["meetingsFaculty"]:
-                #    begin_time = meeting["meetingTime"]["beginTime"]
-                #    end_time = meeting["meetingTime"]["endTime"]
-                #    print(f"Course Reference Number: {course_reference_number}")
-                #    print(f"Instructor: {display_name}")
-                #    print(f"Begin Time: {begin_time}")
-                #    print(f"End Time: {end_time}")
+                with open(f"{courses[count]}.json", "w") as file:
+                    json.dump(course_info, file, indent=4)
                 print("----")
             else:
                 print(f"No data found for URL: {url}")
         else:
             print(f"Failed to retrieve JSON from {url}. Status code: {response.status_code}")
-
+        count += 1
 finally:
     driver.quit()
+
+
+# Load the JSON file
+def load_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+def extract_meeting_info(data):
+    extracted_data = []
+    seen_crns = set()
+    days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    
+    for course in data.get("data", []):
+        course_ref_num = course.get("courseReferenceNumber")
+        if course_ref_num not in seen_crns:
+            seen_crns.add(course_ref_num)
+            for meeting in course.get("meetingsFaculty", []):
+                meeting_time = meeting.get("meetingTime", {})
+                active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
+                
+                extracted_data.append({
+                    "courseReferenceNumber": course_ref_num,
+                    "meetingScheduleType": meeting_time.get("meetingScheduleType"),
+                    "beginTime": meeting_time.get("beginTime"),
+                    "endTime": meeting_time.get("endTime"),
+                    "hoursWeek": meeting_time.get("hoursWeek"),
+                    "daysOfWeek": active_days
+                })
+    return extracted_data
+def save_extracted_data(extracted_data, output_file):
+    with open(output_file, 'w', encoding='utf-8') as file:
+        json.dump(extracted_data, file, indent=4)
+
+def extractdata(files):
+    for course in files:
+        data = load_json(f"{course}.json")
+        extracted_data = extract_meeting_info(data)
+        save_extracted_data(extracted_data, f"{course}.json")
+
+extractdata(courses)
+
+
+
+
