@@ -1,129 +1,188 @@
 *{
-    padding: 0;
-    margin: 0;
-    }
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  padding: 0;
+  margin: 0;
+}
     
-    header{
-    height: 45px;
-    }
-    header nav ul{
-    display: flex;
-    margin-left: 70%;
-    list-style: none;
-    }
+section{
+  height: 100vh;
+  border: 1px solid grey;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
     
-    header nav ul li{
-    padding-left: 10%;
-    }
-    
-    header a{
-    text-decoration: none;
-    color: brown;
-    
-    }
-    
-    section{
-    height: 100vh;
-    border: 1px solid grey;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    }
-    
-    .Container img{
-    height: 300px;
-    border-radius: 50%;
-    }
-    
-    .Container h2{
-    margin-top: 2%;
-    font-size: 3em;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    }
-    .Container p, ul{
-    margin-top: 2%;
-    font-size: 1.5rem;
-    }
+#intro {
+  background-image: url("Images/FantasyBooks.avif");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
 
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
-    
-    .dropbtn {
-        background-color: #3498db;
-        color: white;
-        padding: 10px;
-        border: none;
-        cursor: pointer;
-    }
+#intro::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
 
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
+#intro .Container {
+  position: relative;
+  z-index: 2;
+}
 
-    .dropdown-content div {
-        padding: 10px;
-        cursor: pointer;
-    }
+#intro .Container h2 {
+  font-size: 3em;
+}
 
-    .dropdown-content div:hover {
-        background-color: #ddd;
-    }
-    
-    footer {
-    line-height: 40px;
-    display: flex;
-    justify-content: center;
-    font-size: 1rem;
-    }
+#Scroller {
+  position: relative;
+  top: 400px;
+  background-color: white;
+  color:#560909;
+  font-size: 30px;
+  font-weight: bold; 
+  height: 100px;
+  width: 300px;
+  border-radius: 50px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); 
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: all 0.5s ease; 
+}
 
-    /* Dropdown Button */
-.dropbtn {
-    background-color: #3498DB;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  /* Dropdown button on hover & focus */
-  .dropbtn:hover, .dropbtn:focus {
-    background-color: #2980B9;
-  }
-  
-  /* The container <div> - needed to position the dropdown content */
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  
-  /* Dropdown Content (Hidden by Default) */
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-  }
-  
-  /* Links inside the dropdown */
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
-  
-  /* Change color of dropdown links on hover */
-  .dropdown-content a:hover {background-color: #ddd;}
-  
-  /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-  .show {display:block;}
+#Scroller:hover {
+  transform: scale(1.1); 
+  cursor: pointer; 
+}
+
+.Container h2{
+  margin-top: 2%;
+  font-size: 5em;
+}
+
+.Container p, ul{
+  margin-top: 2%;
+  font-size: 1.5rem;
+}
+
+#about {
+  text-align: center;
+  padding: 50px;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#about h1 {
+  font-size: 70px;
+  margin-top: 50px;
+}
+
+#course-container {
+  margin-top: 20px;
+}
+
+.course-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  margin-left: 80px;
+}
+
+.course-input {
+  padding: 8px;
+  width: 200px;
+}
+
+
+/* Styling the Table */
+#courseSchedule {
+  margin-top: 20px;
+  width: 80%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+  width: 150px;
+  height: 40px;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Styling Add Delete Buttons */
+.delete-course {
+  background-color: rgb(171, 35, 35);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.3s ease; 
+}
+
+.delete-course:hover {
+  background-color: rgb(83, 9, 9);
+  cursor: pointer; 
+}
+
+#add-course {
+  background-color: rgb(57, 138, 100);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: all 0.3s ease; 
+}
+
+#add-course:hover {
+  background-color: rgb(36, 74, 36);
+  cursor: pointer; 
+}
+
+#contact {
+  text-align: center;
+  padding: 40px;
+}
+
+#contact h1 {
+  font-size: 50px;
+}
+
+#contact ul li{
+  list-style: none;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 1rem;
+}
