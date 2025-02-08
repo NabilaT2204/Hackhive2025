@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import requests
 import time
 import json
+import os
 # Your login credentials
 USERNAME = "100871157"
 PASSWORD = "crashergames"
@@ -35,12 +36,7 @@ try:
     
     username_field = driver.find_element(By.ID, "userNameInput")
     password_field = driver.find_element(By.ID, "passwordInput")
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-    for btn in buttons:
-        print(btn.text)
 
-
-    #login_button = driver.find_element(By.XPATH, "//input[@value='Sign In']")
 
     # Enter login details
     username_field.send_keys(USERNAME)
@@ -50,8 +46,6 @@ try:
     # Wait for the page to load after login
    
     login_button = wait.until(EC.element_to_be_clickable((By.ID, "submitButton")))
-    #login_button.click()
-    #time.sleep(5)  # Adjust as needed
     while True:
         try:
             if login_button.is_displayed():
@@ -62,10 +56,7 @@ try:
             break  # If the button element is no longer found, assume it's clicked
 
     # Get session cookies
-    
-    
     term_button = wait.until(EC.presence_of_element_located((By.ID, "term-go")))
-
     while True:
         try:
             if term_button.is_displayed():
@@ -145,8 +136,45 @@ def extractdata(files):
         extracted_data = extract_meeting_info(data)
         save_extracted_data(extracted_data, f"{course}.json")
 
-extractdata(courses)
+def combine_json_files(course_list, output_file="combined_courses.json"):
+    """
+    Combines multiple JSON files into a single JSON file, organizing them by course code.
+    
+    Args:
+        course_list (list): List of course codes to process
+        output_file (str): Name of the output JSON file
+    """
+    combined_data = {}
+    
+    # Read each course file and add to combined data
+    for course in course_list:
+        try:
+            with open(f"{course}.json", 'r', encoding='utf-8') as file:
+                course_data = json.load(file)
+                combined_data[course] = course_data
+        except FileNotFoundError:
+            print(f"Warning: File for course {course} not found")
+        except json.JSONDecodeError:
+            print(f"Warning: Invalid JSON in file for course {course}")
+    
+    # Write combined data to output file
+    try:
+        with open(output_file, 'w', encoding='utf-8') as outfile:
+            json.dump(combined_data, outfile, indent=4)
+        print(f"Successfully combined data into {output_file}")
+    except Exception as e:
+        print(f"Error writing combined file: {str(e)}")
 
+def remove_json_files(courses):
+    for course in courses:
+        try:    
+            os.remove(f"{course}.json")
+        except FileNotFoundError:
+            print(f"Warning: File for course {course} not found")
+
+extractdata(courses)
+combine_json_files(courses)
+remove_json_files(courses)
 
 
 
