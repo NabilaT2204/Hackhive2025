@@ -23,7 +23,7 @@ def build_urls(courses, term):
     base_url = "https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/searchResults/searchResults"
     return [f"{base_url}?txt_subjectcoursecombo={course}&txt_term={term}" for course in courses]
 
-courses = ["ALSU1101U", "APBS6600G", "AUTE3450U", "BIOL3650U", "BUSI2040U"]
+courses = ["MATH1010U", "CSCI2050U", "BUSI1700U", "PHY1020U", "CSCI1061U"]
 term = "202501"
 json_urls = build_urls(courses, term)
 
@@ -125,6 +125,7 @@ def extract_meeting_info(data):
                 extracted_data.append({
                     "displayName": ", ".join(display_names) if display_names else "N/A",
                     "startdate": meeting_time.get("startDate"),
+                    "building": meeting_time.get("buildingDescription"),
                     "enddate": meeting_time.get("endDate"),
                     "campus": meeting_time.get("campusDescription"),
                     "room":  meeting_time.get("room"),
