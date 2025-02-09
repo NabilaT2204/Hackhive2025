@@ -36,25 +36,54 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     submitButton.addEventListener("click", function () {
+        event.preventDefault(); // Prevents the page from scrolling to the top
+        // Collect courses data
         const courseInputs = document.querySelectorAll(".course-input");
         const courses = [];
-
         courseInputs.forEach(input => {
             if (input.value.trim() !== "") {
                 courses.push(input.value.trim());
             }
         });
-        console.log(courses);
 
-        // Send courses to Python server using Fetch API
+        // Function to handle empty input and set default values if necessary
+        function getTimeOrDefault(startId, endId) {
+            const start = document.getElementById(startId).value;
+            const end = document.getElementById(endId).value;
+            return {
+                start: start.trim() === "" ? "0000" : start,
+                end: end.trim() === "" ? "2359" : end
+            };
+        }
+
+        // Collect time restrictions data, setting default values if empty
+        const timeRestrictions = {
+            mondayStart: getTimeOrDefault('mondayStart', 'mondayEnd').start,
+            mondayEnd: getTimeOrDefault('mondayStart', 'mondayEnd').end,
+            tuesdayStart: getTimeOrDefault('tuesdayStart', 'tuesdayEnd').start,
+            tuesdayEnd: getTimeOrDefault('tuesdayStart', 'tuesdayEnd').end,
+            wednesdayStart: getTimeOrDefault('wednesdayStart', 'wednesdayEnd').start,
+            wednesdayEnd: getTimeOrDefault('wednesdayStart', 'wednesdayEnd').end,
+            thursdayStart: getTimeOrDefault('thursdayStart', 'thursdayEnd').start,
+            thursdayEnd: getTimeOrDefault('thursdayStart', 'thursdayEnd').end,
+            fridayStart: getTimeOrDefault('fridayStart', 'fridayEnd').start,
+            fridayEnd: getTimeOrDefault('fridayStart', 'fridayEnd').end,
+        };
+
+        // Send both courses and time restrictions to the backend
+        const data = {
+            courses: courses,
+            time_restrictions: timeRestrictions
+        };
+
+        // Send data to Python server using Fetch API
         fetch("http://127.0.0.1:5000/courses", {
-            method: "POST",  // HTTP request method is POST, which is used for sending data to the server.
+            method: "POST",
             headers: {
-                "Content-Type": "application/json" // Set the Content-Type to application/json for sending JSON data
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ courses: courses }) //This converts the 'courses' array into a JSON string and sends it in the body
+            body: JSON.stringify(data) // Send both courses and time restrictions
         })
-        //Catch errors
         .then(response => response.json())
         .then(data => {
             console.log("Server response:", data);
@@ -64,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
 
 // Get started button will scroll to the next section
 document.addEventListener("DOMContentLoaded", function () {
@@ -80,18 +108,13 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch("schedule_output.json") // Load the JSON file
+    fetch("generated_schedule.json") // Load the JSON file
         .then(response => response.json())
         .then(data => populateTable(data))
         .catch(error => console.error("Error loading JSON data:", error));
 });
 
 function populateTable(jsonData) {
-    if (!jsonData.success) {
-        console.error("Failed to generate schedule");
-        return;
-    }
-
     let table = document.querySelector("#courseSchedule table"); // Select the table inside #courseSchedule
     let tbody = table.getElementsByTagName("tbody")[0] || table; // Finds tbody if present
 
@@ -100,23 +123,18 @@ function populateTable(jsonData) {
         tbody.deleteRow(1);
     }
 
-    jsonData.schedule.days.forEach(day => {
-        day.classes.forEach(course => {
+    // Loop through the weekly schedule
+    for (let day in jsonData.weekly_schedule) {
+        let dayName = day;
+        jsonData.weekly_schedule[day].forEach(course => {
             let row = tbody.insertRow();
-            row.insertCell().textContent = course.courseCode;
+            row.insertCell().textContent = course.course_code;
             row.insertCell().textContent = course.crn;
-            row.insertCell().textContent = "N/A";
-            row.insertCell().textContent = course.meetingType; 
-            row.insertCell().textContent = day.dayName
-            row.insertCell().textContent = formatTime(course.startTime) + " - " + formatTime(course.endTime);
+            row.insertCell().textContent = course.room;
+            row.insertCell().textContent = course.type; 
+            row.insertCell().textContent = dayName;
+            row.insertCell().textContent = `${course.start_time} - ${course.end_time}`;
+            row.insertCell().textContent = course.campus
         });
-    });
-}
-
-// Function to convert military time (HH:MM) to standard 12-hour format
-function formatTime(time) {
-    let [hours, minutes] = time.split(":").map(Number);
-    let period = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
-    return `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
+    }
 }
