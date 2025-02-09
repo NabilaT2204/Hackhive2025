@@ -281,15 +281,23 @@ def organize_by_day(schedule):
     for course_code, sessions in schedule.items():
         for session in sessions:
             for day in session['daysOfWeek']:
+                # Format room based on building
+                room = session.get('room', 'TBA')
+                building = session.get('building', 'TBA')
+                
+                # If building is Shawenjigewining Hall, prefix room with "SHA"
+                if building == "Shawenjigewining Hall" and room != 'TBA':
+                    room = f"SHA{room}"
+                
                 session_info = {
                     'course_code': course_code,
                     'type': session['meetingScheduleType'],
                     'begin_time': session['beginTime'],
                     'end_time': session['endTime'],
                     'crn': session['courseReferenceNumber'],
-                    'room': session.get('room', 'TBA'),  # Add room
-                    'campus': session.get('campus', 'TBA'),  # Add campus
-                    'building': session.get('building', 'TBA'),
+                    'room': room,  # Use formatted room
+                    'campus': session.get('campus', 'TBA'),
+                    'building': building,
                     'prof': session.get('displayName', 'TBA')
                 }
                 days_schedule[day].append(session_info)
