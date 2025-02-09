@@ -65,11 +65,18 @@ def handle_courses():
         if not time_restrictions:
             print("No time restrictions found")
             algorithm_result = run_algorithm()
-            return jsonify({"error": "No time restrictions found. Please set time restrictions first."}), 400
 
         print("Starting algorithm...")
         algorithm_result = run_algorithm()
         print(f"Algorithm result: {algorithm_result}")
+
+        print("Starting professor summaries generation...")
+        summaries_result = run_summaries()
+        print(f"Summaries result: {summaries_result}")
+        
+        if not summaries_result.get('success'):
+            print("Summaries generation failed")
+            return jsonify({"error": "Summaries generation failed", "details": summaries_result.get('error')}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -199,6 +206,27 @@ def run_algorithm():
             
     except subprocess.CalledProcessError as e:
         return {"success": False, "error": f"Algorithm execution failed: {e.stderr}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def run_summaries():
+    """Run the allSummaries.py script"""
+    try:
+        result = subprocess.run(['python', 'allSummaries.py'],
+                              capture_output=True,
+                              text=True,
+                              check=True)
+        
+        # Try to load the generated summaries
+        try:
+            with open('professor_summaries.json', 'r') as f:
+                summaries_data = json.load(f)
+            return {"success": True, "data": summaries_data}
+        except (IOError, json.JSONDecodeError) as e:
+            return {"success": False, "error": f"Failed to load professor summaries: {str(e)}"}
+            
+    except subprocess.CalledProcessError as e:
+        return {"success": False, "error": f"Summaries generation failed: {e.stderr}"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
