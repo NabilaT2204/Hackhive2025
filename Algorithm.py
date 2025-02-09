@@ -284,8 +284,9 @@ def organize_by_day(schedule):
                     'begin_time': session['beginTime'],
                     'end_time': session['endTime'],
                     'crn': session['courseReferenceNumber'],
-                    'room': session.get('room', 'TBA'),  # Add room
-                    'campus': session.get('campus', 'TBA')  # Add campus
+                    'building': session.get('building', 'TBA'),  # Add building
+                    'room': session.get('room', 'TBA'),
+                    'campus': session.get('campus', 'TBA')
                 }
                 days_schedule[day].append(session_info)
     
@@ -315,6 +316,7 @@ def print_schedule_by_day(schedule):
             print(f"  {session['course_code']} - {session['type']}")
             print(f"    {format_time(session['begin_time'])} - "
                   f"{format_time(session['end_time'])}")
+            print(f"    Building: {session['building']}")
             print(f"    Room: {session['room']}")
             print(f"    Campus: {session['campus']}")
             print(f"    CRN: {session['crn']}")
@@ -341,6 +343,7 @@ def schedule_to_json(schedule):
                     'type': session['type'],
                     'start_time': format_time(session['begin_time']),
                     'end_time': format_time(session['end_time']),
+                    'building': session['building'],
                     'room': session['room'],
                     'campus': session['campus'],
                     'crn': session['crn']
