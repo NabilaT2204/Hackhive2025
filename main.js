@@ -1,4 +1,46 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const downloadCalendarButton = document.createElement("button");
+    downloadCalendarButton.id = "download-calendar";
+    downloadCalendarButton.textContent = "Download Calendar";
+    downloadCalendarButton.className = "download-btn";
+    
+    document.getElementById("courseSchedule").appendChild(downloadCalendarButton);
+
+    downloadCalendarButton.addEventListener("click", async function() {
+        try {
+            // Trigger the calendar conversion
+            const convertResponse = await fetch("http://127.0.0.1:5000/convert-calendar", {
+                method: "GET",
+            });
+
+            if (!convertResponse.ok) {
+                throw new Error(`HTTP error! Status: ${convertResponse.status}`);
+            }
+
+            // Get the ICS file blob
+            const blob = await convertResponse.blob();
+            
+            // Create a download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "schedule.ics";
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+        } catch (error) {
+            console.error("Error downloading calendar:", error);
+            alert("Failed to download calendar. Please try again.");
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
     const courseContainer = document.getElementById("course-container");
     const addCourseButton = document.getElementById("add-course");
     const submitButton = document.getElementById("submit");
