@@ -47,10 +47,10 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(courses);
 
         // Send courses to Python server using Fetch API
-        fetch("/courses", {
+        fetch("http://127.0.0.1:5000/courses", {
             method: "POST",  // HTTP request method is POST, which is used for sending data to the server.
             headers: {
-                "Content-Type": "text/plain" //Sending String data
+                "Content-Type": "application/json" // Set the Content-Type to application/json for sending JSON data
             },
             body: JSON.stringify({ courses: courses }) //This converts the 'courses' array into a JSON string and sends it in the body
         })
