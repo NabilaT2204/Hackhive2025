@@ -26,17 +26,44 @@
                         </div>
                     </div>
                     <button id="add-course">+</button>
-                    <button id="submit">Submit Courses</button>
+                </div>
+                <div class="Restrictions">
+                    <p>Please Set Your Time Restrictions:</p>
+
+                    <form>
+                      <label for="monday">Monday:</label>
+                      <input type="text" id="mondayStart" name="mondayStart" placeholder="24hr format, e.g., 1100">
+                      <input type="text" id="mondayEnd" name="mondayEnd" placeholder="24hr format, e.g., 2300"><br><br>
+                    
+                      <label for="tuesday">Tuesday:</label>
+                      <input type="text" id="tuesdayStart" name="tuesdayStart" placeholder="24hr format, e.g., 1100">
+                      <input type="text" id="tuesdayEnd" name="tuesdayEnd" placeholder="24hr format, e.g., 2300"><br><br>
+                    
+                      <label for="wednesday">Wednesday:</label>
+                      <input type="text" id="wednesdayStart" name="wednesdayStart" placeholder="24hr format, e.g., 1100">
+                      <input type="text" id="wednesdayEnd" name="wednesdayEnd" placeholder="24hr format, e.g., 2300"><br><br>
+                    
+                      <label for="thursday">Thursday:</label>
+                      <input type="text" id="thursdayStart" name="thursdayStart" placeholder="24hr format, e.g., 1100">
+                      <input type="text" id="thursdayEnd" name="thursdayEnd" placeholder="24hr format, e.g., 2300"><br><br>
+                    
+                      <label for="friday">Friday:</label>
+                      <input type="text" id="fridayStart" name="fridayStart" placeholder="24hr format, e.g., 1100">
+                      <input type="text" id="fridayEnd" name="fridayEnd" placeholder="24hr format, e.g., 2300"><br><br>
+                    
+                      <button id="submit">Submit</button>
+                    </form>                    
                 </div>
                 <div id="courseSchedule">
                     <table>
                         <tr>
                             <th>Course</th>
                             <th>CRN</th>
-                            <th>Professor</th>
+                            <th>Room</th>
                             <th>Type</th>
                             <th>Day</th>
                             <th>Time</th>
+                            <th>Campus</th>
                           </tr>
                           <tr>
                             <td></td>
