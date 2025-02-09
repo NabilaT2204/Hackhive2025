@@ -79,7 +79,7 @@ def get_summary(text):
                 "model": "deepseek-r1:1.5b",
                 "prompt": f"""
                 The text provided is reviews of a professor. Each line is a different review made by a different person.
-                Write a brief summary of this text (about 3-5 sentences).
+                Write a brief summary of this text (about 3-4 sentences).
                 Heres an example of what it should look like: [professor name] is an outstanding professor who excels in his teaching, supports everyone's well-being, and is genuinely humorous, making every room a better place. He’s also a fantastic mentor for students seeking practical experience:
                 Be honest with whether the reviews like the professor, or dislike, and create an opinion on it: {text}
                 """,
