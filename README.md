@@ -40,7 +40,7 @@ Class Scheduler is a powerful tool designed to help students organize their seme
    ```
    *Or install individually:*
    ```sh
-   pip install bs4 flask selenium webdriver icalendar pytz ollama requests
+   pip install bs4 flask selenium webdriver icalendar pytz ollama requests flask_cors
    ```
 
 3. Ensure you have access to the Deepseek-R1 model and configure it as per the documentation:
