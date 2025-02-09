@@ -283,7 +283,9 @@ def organize_by_day(schedule):
                     'type': session['meetingScheduleType'],
                     'begin_time': session['beginTime'],
                     'end_time': session['endTime'],
-                    'crn': session['courseReferenceNumber']
+                    'crn': session['courseReferenceNumber'],
+                    'room': session.get('room', 'TBA'),  # Add room
+                    'campus': session.get('campus', 'TBA')  # Add campus
                 }
                 days_schedule[day].append(session_info)
     
@@ -299,11 +301,11 @@ def print_schedule_by_day(schedule):
     daily_schedule = organize_by_day(schedule)
     
     print("\nWeekly Schedule:")
-    print("=" * 60)
+    print("=" * 70)
     
     for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
         print(f"\n{day}:")
-        print("-" * 60)
+        print("-" * 70)
         
         if day not in daily_schedule or not daily_schedule[day]:
             print("  No classes scheduled")
@@ -313,6 +315,8 @@ def print_schedule_by_day(schedule):
             print(f"  {session['course_code']} - {session['type']}")
             print(f"    {format_time(session['begin_time'])} - "
                   f"{format_time(session['end_time'])}")
+            print(f"    Room: {session['room']}")
+            print(f"    Campus: {session['campus']}")
             print(f"    CRN: {session['crn']}")
             print()
 
@@ -337,6 +341,8 @@ def schedule_to_json(schedule):
                     'type': session['type'],
                     'start_time': format_time(session['begin_time']),
                     'end_time': format_time(session['end_time']),
+                    'room': session['room'],
+                    'campus': session['campus'],
                     'crn': session['crn']
                 }
                 for session in daily_schedule[day]
