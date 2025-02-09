@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     submitButton.addEventListener("click", function () {
+        event.preventDefault(); // Prevents the page from scrolling to the top
         // Collect courses data
         const courseInputs = document.querySelectorAll(".course-input");
         const courses = [];
@@ -114,11 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function populateTable(jsonData) {
-    if (!jsonData.success) {
-        console.error("Failed to generate schedule");
-        return;
-    }
-
     let table = document.querySelector("#courseSchedule table"); // Select the table inside #courseSchedule
     let tbody = table.getElementsByTagName("tbody")[0] || table; // Finds tbody if present
 
@@ -127,16 +123,18 @@ function populateTable(jsonData) {
         tbody.deleteRow(1);
     }
 
-    jsonData.schedule.days.forEach(day => {
-        day.classes.forEach(course => {
+    // Loop through the weekly schedule
+    for (let day in jsonData.weekly_schedule) {
+        let dayName = day;
+        jsonData.weekly_schedule[day].forEach(course => {
             let row = tbody.insertRow();
             row.insertCell().textContent = course.course_code;
             row.insertCell().textContent = course.crn;
-            row.insertCell().textContent = "N/A";
+            row.insertCell().textContent = course.room;
             row.insertCell().textContent = course.type; 
-            row.insertCell().textContent = day.dayName
-            row.insertCell().textContent = (course.start_time) + " - " + (course.end_time);
+            row.insertCell().textContent = dayName;
+            row.insertCell().textContent = `${course.start_time} - ${course.end_time}`;
+            row.insertCell().textContent = course.campus
         });
-    });
+    }
 }
-
