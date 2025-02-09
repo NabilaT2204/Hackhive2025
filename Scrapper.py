@@ -124,6 +124,10 @@ def extract_meeting_info(data):
                 
                 extracted_data.append({
                     "displayName": ", ".join(display_names) if display_names else "N/A",
+                    "startdate": meeting_time.get("startDate"),
+                    "enddate": meeting_time.get("endDate"),
+                    "campus": meeting_time.get("campusDescription"),
+                    "room":  meeting_time.get("room"),
                     "courseReferenceNumber": course_ref_num,
                     "meetingScheduleType": meeting_time.get("meetingScheduleType"),
                     "beginTime": meeting_time.get("beginTime"),
