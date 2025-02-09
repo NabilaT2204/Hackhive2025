@@ -1,8 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import requests
@@ -10,61 +7,88 @@ import time
 import json
 import os
 import sys
-import subprocess
 
-courses = sys.argv[1:]  # Get all arguments passed (the courses list)
+# Get courses from command line or use default list
+courses = sys.argv[1:] if len(sys.argv) > 1 else ["MATH1010U", "CSCI2050U", "BUSI1700U", "PHY1020U", "CSCI1061U"]
 
-# Your login credentials
-USERNAME = ""
-PASSWORD = ""
-
-# Setup WebDriver (Ensure chromedriver is in your PATH)
-service = Service("path/to/chromedriver")  # Update path to WebDriver
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")  # Run in headless mode if you don't need UI
-driver = webdriver.Chrome()
-
-
-#Add courses from Flask.py
-#courses = ["MATH1010U", "CSCI2050U", "BUSI1700U", "PHY1020U", "CSCI1061U"]
 def build_urls(courses, term):
     base_url = "https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/searchResults/searchResults"
     return [f"{base_url}?txt_subjectcoursecombo={course}&txt_term={term}" for course in courses]
 
-term = "202501"
-json_urls = build_urls(courses, term)
+def scrape_course_data(driver, url, session_cookie, headers):
+    driver.get("https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/classSearch/classSearch")
+    response = requests.get(url, headers=headers, cookies=session_cookie)
+    if response.status_code == 200:
+        return response.json()
+    return None
 
-for url in json_urls:
-    print(f"Processing URL: {url}")
-    try:
-        # Open login page
-        driver.get("https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/registration/registerPostSignIn?mode=search&mepCode=UOIT")
-
-        # Wait for login elements
-        wait = WebDriverWait(driver, 10)
-        
-        username_field = driver.find_element(By.ID, "userNameInput")
-        password_field = driver.find_element(By.ID, "passwordInput")
-
-
-        # Enter login details
-        username_field.send_keys(USERNAME)
-        password_field.send_keys(PASSWORD)
-
-
-        # Wait for the page to load after login
+def extract_meeting_info(data):
+    extracted_data = []
+    seen_crns = set()
+    days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
     
-        login_button = wait.until(EC.element_to_be_clickable((By.ID, "submitButton")))
-        while True:
-            try:
-                if login_button.is_displayed():
-                    continue  # Button is still visible, wait
-                else:
-                    break  # Button is gone, meaning the user clicked it
-            except:
-                break  # If the button element is no longer found, assume it's clicked
+    for course in data.get("data", []):
+        course_ref_num = course.get("courseReferenceNumber")
+        if course_ref_num not in seen_crns:
+            seen_crns.add(course_ref_num)
+            display_names = [faculty.get("displayName") for faculty in course.get("faculty", []) if faculty.get("displayName")]
 
-        # Get session cookies
+            for meeting in course.get("meetingsFaculty", []):
+                meeting_time = meeting.get("meetingTime", {})
+                active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
+                
+                extracted_data.append({
+                    "displayName": ", ".join(display_names) if display_names else "N/A",
+                    "startdate": meeting_time.get("startDate"),
+                    "building": meeting_time.get("buildingDescription"),
+                    "enddate": meeting_time.get("endDate"),
+                    "campus": meeting_time.get("campusDescription"),
+                    "room":  meeting_time.get("room"),
+                    "courseReferenceNumber": course_ref_num,
+                    "meetingScheduleType": meeting_time.get("meetingScheduleType"),
+                    "beginTime": meeting_time.get("beginTime"),
+                    "endTime": meeting_time.get("endTime"),
+                    "hoursWeek": meeting_time.get("hoursWeek"),
+                    "daysOfWeek": active_days
+                })
+    
+    return extracted_data
+
+def save_course_data(course_code, data):
+    """Save individual course data to a JSON file"""
+    with open(f"{course_code}.json", "w") as f:
+        json.dump(data, f, indent=4)
+    print(f"Saved data for {course_code}")
+
+def save_combined_data(combined_data):
+    """Save the combined course data to a single JSON file"""
+    with open("combined_courses.json", "w") as f:
+        json.dump(combined_data, f, indent=4)
+    print("Saved combined course data")
+
+def cleanup_individual_files(courses):
+    """Remove individual course JSON files"""
+    for course in courses:
+        try:
+            os.remove(f"{course}.json")
+            print(f"Removed {course}.json")
+        except FileNotFoundError:
+            print(f"Warning: {course}.json not found")
+
+def main():
+    print("Starting course data scraping...")
+    term = "202501"
+    json_urls = build_urls(courses, term)
+    
+    # Setup WebDriver
+    driver = webdriver.Chrome()
+    wait = WebDriverWait(driver, 10)
+    
+    try:
+        # Open login page and wait for manual login
+        print("Opening browser for manual login...")
+        driver.get("https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/registration/registerPostSignIn?mode=search&mepCode=UOIT")
+        
         term_button = wait.until(EC.presence_of_element_located((By.ID, "term-go")))
         while True:
             try:
@@ -74,133 +98,45 @@ for url in json_urls:
                     break  # Button is gone, meaning the user clicked it
             except:
                 break  # If the button element is no longer found, assume it's clicked
-
+        
+        # Get session cookies after manual login
         cookies = driver.get_cookies()
         session_cookie = {cookie['name']: cookie['value'] for cookie in cookies}
-
-        # Use session cookies to retrieve JSON data
-
-    
         headers = {"User-Agent": "Mozilla/5.0"}
         
-        count = 0
-        # Print retrieved JSON data
-        for url in json_urls:
-            
-            driver.get("https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/classSearch/classSearch")  # Refresh the page before each request
-            
-            response = requests.get(url, headers=headers, cookies=session_cookie)
-            
-            if response.status_code == 200:
-                
-                course_info = response.json()
-                print(f"Retrieved data from URL: {url}")
-                if course_info:
-                    with open(f"{courses[count]}.json", "w") as file:
-                        json.dump(course_info, file, indent=4)
-                    print("----")
-                else:
-                    print(f"No data found for URL: {url}")
-            else:
-                print(f"Failed to retrieve JSON from {url}. Status code: {response.status_code}")
-            count += 1
-    finally:
-        driver.quit()
-
-
-    # Load the JSON file
-    def load_json(file_path):
-        with open(file_path, 'r', encoding='utf-8') as file:
-            return json.load(file)
-        
-
-    def extract_meeting_info(data):
-        extracted_data = []
-        seen_crns = set()
-        days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-        
-        for course in data.get("data", []):
-            course_ref_num = course.get("courseReferenceNumber")
-            if course_ref_num not in seen_crns:
-                seen_crns.add(course_ref_num)
-
-                # Extract faculty display names
-                display_names = [faculty.get("displayName") for faculty in course.get("faculty", []) if faculty.get("displayName")]
-
-                for meeting in course.get("meetingsFaculty", []):
-                    meeting_time = meeting.get("meetingTime", {})
-                    active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
-                    
-                    extracted_data.append({
-                        "displayName": ", ".join(display_names) if display_names else "N/A",
-                        "startdate": meeting_time.get("startDate"),
-                        "building": meeting_time.get("buildingDescription"),
-                        "enddate": meeting_time.get("endDate"),
-                        "campus": meeting_time.get("campusDescription"),
-                        "room":  meeting_time.get("room"),
-                        "courseReferenceNumber": course_ref_num,
-                        "meetingScheduleType": meeting_time.get("meetingScheduleType"),
-                        "beginTime": meeting_time.get("beginTime"),
-                        "endTime": meeting_time.get("endTime"),
-                        "hoursWeek": meeting_time.get("hoursWeek"),
-                        "daysOfWeek": active_days
-                    })
-        
-        return extracted_data
-    def save_extracted_data(extracted_data, output_file):
-        with open(output_file, 'w', encoding='utf-8') as file:
-            json.dump(extracted_data, file, indent=4)
-
-    def extractdata(files):
-        for course in files:
-            data = load_json(f"{course}.json")
-            extracted_data = extract_meeting_info(data)
-            save_extracted_data(extracted_data, f"{course}.json")
-
-    def combine_json_files(course_list, output_file="combined_courses.json"):
-        """
-        Combines multiple JSON files into a single JSON file, organizing them by course code.
-        
-        Args:
-            course_list (list): List of course codes to process
-            output_file (str): Name of the output JSON file
-        """
+        # Process each course
         combined_data = {}
+        for i, url in enumerate(json_urls):
+            course_code = courses[i]
+            print(f"\nProcessing {course_code}...")
+            
+            # Scrape and extract data
+            course_data = scrape_course_data(driver, url, session_cookie, headers)
+            if course_data:
+                extracted_data = extract_meeting_info(course_data)
+                combined_data[course_code] = extracted_data
+                
+                # Save individual file
+                save_course_data(course_code, extracted_data)
+            else:
+                print(f"Failed to retrieve data for {course_code}")
         
-        # Read each course file and add to combined data
-        for course in course_list:
-            try:
-                with open(f"{course}.json", 'r', encoding='utf-8') as file:
-                    course_data = json.load(file)
-                    combined_data[course] = course_data
-            except FileNotFoundError:
-                print(f"Warning: File for course {course} not found")
-            except json.JSONDecodeError:
-                print(f"Warning: Invalid JSON in file for course {course}")
+        # Save combined data
+        print("\nSaving combined data...")
+        save_combined_data(combined_data)
         
-        # Write combined data to output file
-        try:
-            with open(output_file, 'w', encoding='utf-8') as outfile:
-                json.dump(combined_data, outfile, indent=4)
-            print(f"Successfully combined data into {output_file}")
-        except Exception as e:
-            print(f"Error writing combined file: {str(e)}")
+        # Cleanup individual files
+        print("\nCleaning up individual files...")
+        cleanup_individual_files(courses)
+        
+        print("\nProcess completed successfully!")
+        driver.quit()
+        return
+        
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+    finally:
+        print("Browser closed")
 
-    def remove_json_files(courses):
-        for course in courses:
-            try:    
-                os.remove(f"{course}.json")
-            except FileNotFoundError:
-                print(f"Warning: File for course {course} not found")
-
-    extractdata(courses)
-    combine_json_files(courses)
-    remove_json_files(courses)
-
-    # Run timeschedule.py after Scraper.py completes
-    try:
-        subprocess.run(["python", "timeschedule.py"], check=True)
-        print("schedule completed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred while running timeschedule.py: {e}")
-
+if __name__ == "__main__":
+    main()
