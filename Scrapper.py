@@ -103,6 +103,7 @@ finally:
 def load_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return json.load(file)
+    
 
 def extract_meeting_info(data):
     extracted_data = []
@@ -113,11 +114,16 @@ def extract_meeting_info(data):
         course_ref_num = course.get("courseReferenceNumber")
         if course_ref_num not in seen_crns:
             seen_crns.add(course_ref_num)
+
+            # Extract faculty display names
+            display_names = [faculty.get("displayName") for faculty in course.get("faculty", []) if faculty.get("displayName")]
+
             for meeting in course.get("meetingsFaculty", []):
                 meeting_time = meeting.get("meetingTime", {})
                 active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
                 
                 extracted_data.append({
+                    "displayName": ", ".join(display_names) if display_names else "N/A",
                     "courseReferenceNumber": course_ref_num,
                     "meetingScheduleType": meeting_time.get("meetingScheduleType"),
                     "beginTime": meeting_time.get("beginTime"),
@@ -125,6 +131,7 @@ def extract_meeting_info(data):
                     "hoursWeek": meeting_time.get("hoursWeek"),
                     "daysOfWeek": active_days
                 })
+    
     return extracted_data
 def save_extracted_data(extracted_data, output_file):
     with open(output_file, 'w', encoding='utf-8') as file:
