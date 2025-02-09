@@ -1,85 +1,83 @@
 # Class Scheduler
 
-A powerful tool to help students organize their semester schedules efficiently with AI-powered optimizations and professor insights.
-
 ## Overview
 
-Class Scheduler helps students organize their semester schedules by optimizing class timings, maximizing free days, and providing professor reviews. It also enables calendar downloads for seamless integration with personal planners.
+Class Scheduler is a powerful tool designed to help students organize their semester schedules efficiently. By allowing users to input their desired classes, the tool creates an optimized schedule that prioritizes organization and tries to provide days off whenever possible. It also integrates features to enhance the student experience, such as professor reviews and calendar downloads.
 
 ## Features
 
-### 1. Optimized Schedule Generation  
-- Input desired classes and get a gap-minimized schedule  
-- Prioritizes free days for better work-life balance  
+### 1. Optimized Schedule Generation
+- Users can input the classes they want to take.
+- The tool organizes their schedule to minimize gaps and maximize free days, ensuring an efficient semester plan.
 
-### 2. Professor Reviews  
-- AI-summarized reviews from RateMyProf (powered by Deepseek-R1)  
-- Insights into teaching quality and class expectations  
+### 2. Professor Reviews
+- View summarized professor reviews from RateMyProf using the Deepseek-R1 model from Ollama.
+- Gain insights into the quality of instruction and class expectations to make informed decisions.
 
-### 3. Class Calendar Integration  
-- Download schedules as ICS files  
-- Visualize timings with automatic timezone conversion  
+### 3. Class Calendar
+- Generate a downloadable calendar for your schedule.
+- Easily visualize your class timings and plan your semester effectively.
+- Calendar generation is powered by Deepseek-R1 from Ollama for seamless integration.
 
 ## Installation
 
 ### Prerequisites
-- Python 3.8+
-- [Ollama](https://ollama.ai/) (for Deepseek-R1)
-- Deepseek-R1 model:  
-  ```bash
-  ollama run deepseek-r1:1.5b
-Setup
-Clone repository:
+- Python 3.8 or later
+- Deepseek-R1 model from Ollama
+- Required Python packages (specified below)
 
-bash
-Copy
-git clone https://github.com/your-username/class-scheduler.git
-cd class-scheduler
-Install dependencies:
+### Steps
 
-bash
-Copy
-pip install -r requirements.txt
-or individually:
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/your-username/class-scheduler.git
+   cd class-scheduler
+   ```
 
-bash
-Copy
-pip install bs4 flask selenium webdriver-manager icalendar pytz ollama requests
-Run application:
+2. Install the required dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+   *Or install individually:*
+   ```sh
+   pip install bs4 flask selenium webdriver icalendar pytz ollama requests
+   ```
 
-bash
-Copy
-python main.py
-Usage
-Start the program
+3. Ensure you have access to the Deepseek-R1 model and configure it as per the documentation:
+   ```sh
+   ollama run deepseek-r1:1.5b
+   ```
 
-Input your desired classes
+4. Run the application:
+   ```sh
+   python main.py
+   ```
 
-Review optimized schedule options
+## Usage
 
-Check professor ratings
+- Start the program and input the classes you wish to take for the upcoming semester.
+- The system will generate the most organized schedule, attempting to provide free days when possible.
+- View detailed professor reviews for your selected classes to make informed decisions.
+- Download your finalized class calendar for easy reference.
 
-Download final calendar (ICS format)
+## Technologies Used
 
-Tech Stack
-Backend: Python, Flask
+- **Python**: Core programming language.
+- **Deepseek-R1**: AI-powered model for summarization and calendar generation.
+- **RateMyProf**: Source of professor reviews.
+- **ICS (iCalendar)**: For generating downloadable schedules.
+- **BeautifulSoup (bs4)**: For web scraping tasks.
+- **Flask**: To create a web interface for the tool.
+- **Selenium & WebDriver**: For automated browsing tasks.
+- **iCalendar & pytz**: For calendar creation and time zone management.
 
-AI Integration: Ollama (Deepseek-R1 1.5B)
+## Group Members
 
-Web Scraping: BeautifulSoup, Selenium
+- Allan Sangle
+- Nabila Tabassum
+- Joseph Salama
 
-Scheduling: iCalendar, pytz
+## Acknowledgments
 
-Frontend: HTML/CSS (Basic UI)
-
-Development Team
-Allan Sangle
-
-Nabila Tabassum
-
-Joseph Salama
-
-Acknowledgments
-Deepseek-R1 team at Ollama for AI capabilities
-
-RateMyProfessors for review data
+- Deepseek-R1 by Ollama for its powerful summarization and calendar capabilities.
+- RateMyProfessors for providing valuable insights into professor reviews.
