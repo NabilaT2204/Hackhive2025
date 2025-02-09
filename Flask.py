@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import subprocess
 import json
 import os
+from CalendarConverterICS import create_ics_from_json, save_calendar, OllamaManager
 
 app = Flask(__name__)
 CORS(app)
@@ -11,6 +12,38 @@ CORS(app)
 TIME_RESTRICTIONS_FILE = 'time_restrictions.json'
 GENERATED_STRUCTURES_FILE = 'generated_structures.json'
 
+@app.route('/convert-calendar', methods=['GET'])
+def convert_calendar():
+    try:
+        if not os.path.exists('generated_schedule.json'):
+            return jsonify({"error": "Schedule data not found"}), 404
+
+        with open('generated_schedule.json', 'r') as f:
+            schedule_data = json.load(f)
+
+        ollama_manager = OllamaManager()
+        ollama_manager.start_ollama()
+        ollama_manager.ensure_model_installed('deepseek-r1:1.5b')
+
+        calendar = create_ics_from_json(schedule_data, ollama_manager)
+        save_calendar(calendar, 'schedule.ics')
+
+        ollama_manager.stop_ollama()
+
+        if not os.path.exists('schedule.ics'):
+            return jsonify({"error": "Failed to create calendar file"}), 500
+
+        return send_file(
+            'schedule.ics',
+            mimetype='text/calendar',
+            as_attachment=True,
+            download_name='schedule.ics'
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
 @app.route('/courses', methods=['POST'])
 def handle_courses():
     try:
