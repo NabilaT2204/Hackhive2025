@@ -10,8 +10,8 @@ import time
 import json
 import os
 # Your login credentials
-USERNAME = "100871157"
-PASSWORD = "crashergames"
+USERNAME = ""
+PASSWORD = ""
 
 # Setup WebDriver (Ensure chromedriver is in your PATH)
 service = Service("path/to/chromedriver")  # Update path to WebDriver
