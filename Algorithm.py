@@ -3,14 +3,17 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 class TimePreference:
-    def __init__(self):
-        self.restrictions = {
-            'Monday': {'earliest': '0000', 'latest': '2359'},
-            'Tuesday': {'earliest': '0000', 'latest': '2359'},
-            'Wednesday': {'earliest': '0000', 'latest': '2359'},
-            'Thursday': {'earliest': '0000', 'latest': '2359'},
-            'Friday': {'earliest': '0000', 'latest': '2359'}
-        }
+    def __init__(self, restrictions=None):
+        # If no restrictions are provided, it defaults to the entire week being unrestricted
+        if restrictions is None:
+            restrictions = {
+                'Monday': {'earliest': '0000', 'latest': '2359'},
+                'Tuesday': {'earliest': '0000', 'latest': '2359'},
+                'Wednesday': {'earliest': '0000', 'latest': '2359'},
+                'Thursday': {'earliest': '0000', 'latest': '2359'},
+                'Friday': {'earliest': '0000', 'latest': '2359'}
+            }
+        self.restrictions = restrictions
     
     def set_restriction(self, day, earliest=None, latest=None):
         """Set time restrictions for a specific day."""
@@ -284,9 +287,10 @@ def organize_by_day(schedule):
                     'begin_time': session['beginTime'],
                     'end_time': session['endTime'],
                     'crn': session['courseReferenceNumber'],
-                    'building': session.get('building', 'TBA'),  # Add building
-                    'room': session.get('room', 'TBA'),
-                    'campus': session.get('campus', 'TBA')
+                    'room': session.get('room', 'TBA'),  # Add room
+                    'campus': session.get('campus', 'TBA'),  # Add campus
+                    'building': session.get('building', 'TBA'),
+                    'prof': session.get('displayName', 'TBA')
                 }
                 days_schedule[day].append(session_info)
     
@@ -316,7 +320,6 @@ def print_schedule_by_day(schedule):
             print(f"  {session['course_code']} - {session['type']}")
             print(f"    {format_time(session['begin_time'])} - "
                   f"{format_time(session['end_time'])}")
-            print(f"    Building: {session['building']}")
             print(f"    Room: {session['room']}")
             print(f"    Campus: {session['campus']}")
             print(f"    CRN: {session['crn']}")
@@ -343,10 +346,11 @@ def schedule_to_json(schedule):
                     'type': session['type'],
                     'start_time': format_time(session['begin_time']),
                     'end_time': format_time(session['end_time']),
-                    'building': session['building'],
                     'room': session['room'],
                     'campus': session['campus'],
-                    'crn': session['crn']
+                    'crn': session['crn'],
+                    'building': session['building'],
+                    'prof': session['prof']
                 }
                 for session in daily_schedule[day]
             ]
@@ -355,65 +359,53 @@ def schedule_to_json(schedule):
     
     return json_schedule
 
-def main(json_data):
-    # Parse the JSON data
-    course_data = json.loads(json_data)
-    
-    # Create time preferences (optional)
-    time_prefs = TimePreference()
-    
-    # Ask user if they want to set time preferences
-    if input("Do you want to set time preferences? (yes/no): ").lower().strip() == 'yes':
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-        for day in days:
-            if input(f"Set restrictions for {day}? (yes/no): ").lower().strip() == 'yes':
-                earliest = input(f"Earliest time for {day} (24hr format, e.g., 1100) or press Enter to skip: ").strip()
-                latest = input(f"Latest time for {day} (24hr format, e.g., 1700) or press Enter to skip: ").strip()
-                
-                if earliest or latest:
-                    time_prefs.set_restriction(day, 
-                                            earliest if earliest else None,
-                                            latest if latest else None)
-        
-        # Validate schedule possibility before attempting to create schedule
+def main():
+    """
+    Main function to run the scheduling algorithm.
+    Expects time restrictions data in 'time_restrictions.json' and course data in 'combined_courses.json'
+    """
+    try:
+        # Load course data
+        with open('combined_courses.json', 'r') as f:
+            course_data = json.load(f)
+
+        # Load time restrictions if provided
+        try:
+            with open('time_restrictions.json', 'r') as f:
+                restrictions_data = json.load(f)
+                time_prefs = TimePreference({
+                    'Monday': {'earliest': restrictions_data['mondayStart'], 'latest': restrictions_data['mondayEnd']},
+                    'Tuesday': {'earliest': restrictions_data['tuesdayStart'], 'latest': restrictions_data['tuesdayEnd']},
+                    'Wednesday': {'earliest': restrictions_data['wednesdayStart'], 'latest': restrictions_data['wednesdayEnd']},
+                    'Thursday': {'earliest': restrictions_data['thursdayStart'], 'latest': restrictions_data['thursdayEnd']},
+                    'Friday': {'earliest': restrictions_data['fridayStart'], 'latest': restrictions_data['fridayEnd']}
+                })
+        except (FileNotFoundError, json.JSONDecodeError):
+            time_prefs = TimePreference()  # Use default if no restrictions provided
+
+        # Validate schedule possibility
         is_valid, error_message = validate_schedule_possibility(course_data, time_prefs)
         if not is_valid:
-            print("\nERROR: Cannot create a valid schedule with these time preferences:")
-            print(error_message)
-            print("\nPlease try again with different time preferences.")
+            print(f"ERROR: Cannot create valid schedule: {error_message}")
             return None
-        
+
+        # Generate schedule
         schedule = select_best_schedule(course_data, time_prefs)
-        
-        # Double check that we got a complete schedule
-        if not schedule or not all(bool(sessions) for sessions in schedule.values()):
-            print("\nERROR: Could not create a complete schedule with these time preferences.")
-            print("Some courses could not be scheduled while meeting all constraints.")
-            print("Please try again with different time preferences.")
+        if not schedule:
+            print("ERROR: Could not generate a valid schedule")
             return None
-    else:
-        schedule = select_best_schedule(course_data)
-    
-    # Print and export the schedule if it's valid
-    if schedule:
-        # Print the schedule
-        print_schedule_by_day(schedule)
-        
-        # Convert schedule to JSON format
+
+        # Convert schedule to JSON and save
         json_schedule = schedule_to_json(schedule)
-        
-        # Save to file
-        output_filename = 'generated_schedule.json'
-        with open(output_filename, 'w') as f:
+        with open('generated_schedule.json', 'w') as f:
             json.dump(json_schedule, f, indent=2)
-        
-        print(f"\nSchedule has been exported to {output_filename}")
+
+        print("Schedule generated successfully")
         return schedule
-    else:
-        print("\nERROR: Could not generate a valid schedule. Please try different preferences.")
+
+    except Exception as e:
+        print(f"Error in main: {str(e)}")
         return None
 
 if __name__ == "__main__":
-    with open('combined_courses.json', 'r') as file:
-        json_data = file.read()
-    main(json_data)
+    main()
