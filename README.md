@@ -1,7 +1,5 @@
 # Class Scheduler
 
-![Class Scheduler](https://via.placeholder.com/150) <!-- Add your actual image link here -->
-
 A powerful tool to help students organize their semester schedules efficiently with AI-powered optimizations and professor insights.
 
 ## Overview
