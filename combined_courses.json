@@ -1,0 +1,294 @@
+{
+    "BUSI1700U": [
+        {
+            "displayName": "Husain, Aisha",
+            "startdate": "01/06/2025",
+            "building": "Business and IT Building",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "BIT2080",
+            "courseReferenceNumber": "70313",
+            "meetingScheduleType": "LEC",
+            "beginTime": "0810",
+            "endTime": "1100",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Tuesday"
+            ]
+        }
+    ],
+    "CSCI1061U": [
+        {
+            "displayName": "Miljanovic, Michael",
+            "startdate": "01/06/2025",
+            "building": "Software and Informatics Resea",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "3110",
+            "courseReferenceNumber": "73772",
+            "meetingScheduleType": "LEC",
+            "beginTime": "1540",
+            "endTime": "1700",
+            "hoursWeek": 1.5,
+            "daysOfWeek": [
+                "Monday"
+            ]
+        },
+        {
+            "displayName": "Miljanovic, Michael",
+            "startdate": "01/06/2025",
+            "building": "Software and Informatics Resea",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "3110",
+            "courseReferenceNumber": "73772",
+            "meetingScheduleType": "LEC",
+            "beginTime": "1540",
+            "endTime": "1700",
+            "hoursWeek": 1.5,
+            "daysOfWeek": [
+                "Wednesday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Science Building (UA)",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "UA3240",
+            "courseReferenceNumber": "73773",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Tuesday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "356",
+            "courseReferenceNumber": "73774",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1410",
+            "endTime": "1700",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Tuesday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "356",
+            "courseReferenceNumber": "73775",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Thursday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "245",
+            "courseReferenceNumber": "73921",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Thursday"
+            ]
+        },
+        {
+            "displayName": "Abdelkader, Ghadeer",
+            "startdate": "01/06/2025",
+            "building": "Software and Informatics Resea",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "2020",
+            "courseReferenceNumber": "74360",
+            "meetingScheduleType": "LEC",
+            "beginTime": "1240",
+            "endTime": "1400",
+            "hoursWeek": 1.5,
+            "daysOfWeek": [
+                "Monday"
+            ]
+        },
+        {
+            "displayName": "Abdelkader, Ghadeer",
+            "startdate": "01/06/2025",
+            "building": "Software and Informatics Resea",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "2020",
+            "courseReferenceNumber": "74360",
+            "meetingScheduleType": "LEC",
+            "beginTime": "1240",
+            "endTime": "1400",
+            "hoursWeek": 1.5,
+            "daysOfWeek": [
+                "Thursday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "249",
+            "courseReferenceNumber": "74361",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Tuesday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Science Building (UA)",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "UA3240",
+            "courseReferenceNumber": "74439",
+            "meetingScheduleType": "LAB",
+            "beginTime": "0810",
+            "endTime": "1100",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Thursday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Science Building (UA)",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "UA3230",
+            "courseReferenceNumber": "74606",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Tuesday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "357",
+            "courseReferenceNumber": "74888",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Thursday"
+            ]
+        },
+        {
+            "displayName": "Miljanovic, Michael",
+            "startdate": "01/06/2025",
+            "building": "Business and IT Building",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "BIT2080",
+            "courseReferenceNumber": "75188",
+            "meetingScheduleType": "LEC",
+            "beginTime": "1410",
+            "endTime": "1530",
+            "hoursWeek": 1.5,
+            "daysOfWeek": [
+                "Wednesday"
+            ]
+        },
+        {
+            "displayName": "Miljanovic, Michael",
+            "startdate": "01/06/2025",
+            "building": "Business and IT Building",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "BIT2080",
+            "courseReferenceNumber": "75188",
+            "meetingScheduleType": "LEC",
+            "beginTime": "1410",
+            "endTime": "1530",
+            "hoursWeek": 1.5,
+            "daysOfWeek": [
+                "Friday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "247",
+            "courseReferenceNumber": "75218",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Thursday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Science Building (UA)",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "UA3240",
+            "courseReferenceNumber": "75219",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Wednesday"
+            ]
+        },
+        {
+            "displayName": "N/A",
+            "startdate": "01/06/2025",
+            "building": "Shawenjigewining Hall",
+            "enddate": "04/04/2025",
+            "campus": "OT-North Oshawa",
+            "room": "245",
+            "courseReferenceNumber": "75449",
+            "meetingScheduleType": "LAB",
+            "beginTime": "1240",
+            "endTime": "1530",
+            "hoursWeek": 3.0,
+            "daysOfWeek": [
+                "Tuesday"
+            ]
+        }
+    ]
+}

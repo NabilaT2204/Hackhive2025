@@ -34,6 +34,7 @@ def build_urls(courses, term):
 term = "202501"
 json_urls = build_urls(courses, term)
 
+count = 0
 for url in json_urls:
     print(f"Processing URL: {url}")
     try:
@@ -197,10 +198,13 @@ for url in json_urls:
     combine_json_files(courses)
     remove_json_files(courses)
 
+"""
     # Run timeschedule.py after Scraper.py completes
     try:
         subprocess.run(["python", "timeschedule.py"], check=True)
         print("schedule completed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"An error occurred while running timeschedule.py: {e}")
+
+"""
 

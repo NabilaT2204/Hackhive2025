@@ -1,0 +1,42 @@
+{
+  "schedule_info": {
+    "generated_date": "2025-02-09 01:14:43",
+    "total_courses": 2
+  },
+  "weekly_schedule": {
+    "Monday": [
+      {
+        "course_code": "CSCI1061U",
+        "type": "LEC",
+        "start_time": "3:40 PM",
+        "end_time": "5:00 PM",
+        "room": "3110",
+        "campus": "OT-North Oshawa",
+        "crn": "73772"
+      }
+    ],
+    "Tuesday": [
+      {
+        "course_code": "BUSI1700U",
+        "type": "LEC",
+        "start_time": "8:10 AM",
+        "end_time": "11:00 AM",
+        "room": "BIT2080",
+        "campus": "OT-North Oshawa",
+        "crn": "70313"
+      },
+      {
+        "course_code": "CSCI1061U",
+        "type": "LAB",
+        "start_time": "2:10 PM",
+        "end_time": "5:00 PM",
+        "room": "356",
+        "campus": "OT-North Oshawa",
+        "crn": "73774"
+      }
+    ],
+    "Wednesday": [],
+    "Thursday": [],
+    "Friday": []
+  }
+}
