@@ -180,6 +180,18 @@ th {
   transition: all 0.3s ease; 
 }
 
+#submit-summary{
+  background-color: rgb(57, 138, 100);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 20px;
+  margin-top: 10px;
+  transition: all 0.3s ease; 
+}
+
 #contact {
   text-align: center;
   padding: 40px;
@@ -197,4 +209,28 @@ footer {
   text-align: center;
   padding: 20px;
   font-size: 1rem;
+}
+
+/*Prof Summary */
+
+#professor-rating {
+  text-align: center;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  width: 200px;
+  text-align: center;
+  font-size: 16px;
+  outline: none;
+  background-color: #f0f0f0;
+}
+
+#professor-rating label{
+  font-size: 70px;
+  margin-top: 50px;
+}
+
+#professor-rating::placeholder {
+  color: #828785;
+  text-align: center;
 }

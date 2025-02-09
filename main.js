@@ -138,3 +138,33 @@ function populateTable(jsonData) {
         });
     }
 }
+
+document.getElementById("submit-rating").addEventListener("click", function() {
+    // Get the professor's name from the input field
+    const professorName = document.getElementById("professor-rating").value.trim();
+    
+    // Check if the input field is not empty
+    if (professorName) {
+        // Send the professor's name to the back-end via an API call
+        fetch('http://127.0.0.1:5000/api/professor-rating', {  // Adjusted to Flask URL
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                professorName: professorName
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the response from the back-end
+            document.getElementById("response-message").textContent = `Rating for ${professorName}: ${data.rating}`;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById("response-message").textContent = 'An error occurred. Please try again.';
+        });
+    } else {
+        document.getElementById("response-message").textContent = 'Please enter a professor\'s name.';
+    }
+});
