@@ -10,6 +10,7 @@ import time
 import json
 import os
 import sys
+import subprocess
 
 courses = sys.argv[1:]  # Get all arguments passed (the courses list)
 
@@ -23,9 +24,6 @@ options = webdriver.ChromeOptions()
 options.add_argument("--headless")  # Run in headless mode if you don't need UI
 driver = webdriver.Chrome()
 
-def build_urls(courses, term):
-    base_url = "https://ssp.mycampus.ca/StudentRegistrationSsb/ssb/searchResults/searchResults"
-    return [f"{base_url}?txt_subjectcoursecombo={course}&txt_term={term}" for course in courses]
 
 #Add courses from Flask.py
 #courses = ["MATH1010U", "CSCI2050U", "BUSI1700U", "PHY1020U", "CSCI1061U"]
@@ -129,35 +127,17 @@ for url in json_urls:
                 # Extract faculty display names
                 display_names = [faculty.get("displayName") for faculty in course.get("faculty", []) if faculty.get("displayName")]
 
-            for meeting in course.get("meetingsFaculty", []):
-                meeting_time = meeting.get("meetingTime", {})
-                active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
-                
-                extracted_data.append({
-                    "displayName": ", ".join(display_names) if display_names else "N/A",
-                    "startdate": meeting_time.get("startDate"),
-                    "building": meeting_time.get("buildingDescription"),
-                    "enddate": meeting_time.get("endDate"),
-                    "campus": meeting_time.get("campusDescription"),
-                    "room":  meeting_time.get("room"),
-                    "courseReferenceNumber": course_ref_num,
-                    "meetingScheduleType": meeting_time.get("meetingScheduleType"),
-                    "beginTime": meeting_time.get("beginTime"),
-                    "endTime": meeting_time.get("endTime"),
-                    "hoursWeek": meeting_time.get("hoursWeek"),
-                    "daysOfWeek": active_days
-                })
-    
-    return extracted_data
-def save_extracted_data(extracted_data, output_file):
-    with open(output_file, 'w', encoding='utf-8') as file:
-        json.dump(extracted_data, file, indent=4)
                 for meeting in course.get("meetingsFaculty", []):
                     meeting_time = meeting.get("meetingTime", {})
                     active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
                     
                     extracted_data.append({
                         "displayName": ", ".join(display_names) if display_names else "N/A",
+                        "startdate": meeting_time.get("startDate"),
+                        "building": meeting_time.get("buildingDescription"),
+                        "enddate": meeting_time.get("endDate"),
+                        "campus": meeting_time.get("campusDescription"),
+                        "room":  meeting_time.get("room"),
                         "courseReferenceNumber": course_ref_num,
                         "meetingScheduleType": meeting_time.get("meetingScheduleType"),
                         "beginTime": meeting_time.get("beginTime"),
@@ -178,6 +158,13 @@ def save_extracted_data(extracted_data, output_file):
             save_extracted_data(extracted_data, f"{course}.json")
 
     def combine_json_files(course_list, output_file="combined_courses.json"):
+        """
+        Combines multiple JSON files into a single JSON file, organizing them by course code.
+        
+        Args:
+            course_list (list): List of course codes to process
+            output_file (str): Name of the output JSON file
+        """
         combined_data = {}
         
         # Read each course file and add to combined data
@@ -205,8 +192,6 @@ def save_extracted_data(extracted_data, output_file):
                 os.remove(f"{course}.json")
             except FileNotFoundError:
                 print(f"Warning: File for course {course} not found")
-
-    import subprocess
 
     extractdata(courses)
     combine_json_files(courses)
