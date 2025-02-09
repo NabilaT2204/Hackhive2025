@@ -107,6 +107,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const getStartedButton = document.getElementById("Scroller2");
+    const aboutSection = document.getElementById("summarySection");
+
+    if (getStartedButton && aboutSection) {
+        getStartedButton.addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent default anchor behavior
+            aboutSection.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
     fetch("generated_schedule.json") // Load the JSON file
         .then(response => response.json())
@@ -138,33 +151,44 @@ function populateTable(jsonData) {
         });
     }
 }
-
-document.getElementById("submit-rating").addEventListener("click", function() {
-    // Get the professor's name from the input field
-    const professorName = document.getElementById("professor-rating").value.trim();
-    
-    // Check if the input field is not empty
-    if (professorName) {
-        // Send the professor's name to the back-end via an API call
-        fetch('http://127.0.0.1:5000/api/professor-rating', {  // Adjusted to Flask URL
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                professorName: professorName
-            })
-        })
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("professor_summaries.json") // Load the JSON file
         .then(response => response.json())
         .then(data => {
-            // Handle the response from the back-end
-            document.getElementById("response-message").textContent = `Rating for ${professorName}: ${data.rating}`;
+            window.professorData = data; // Store data globally
+            populateProfessorSummaryTable(); // Populate the table after loading data
         })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById("response-message").textContent = 'An error occurred. Please try again.';
-        });
-    } else {
-        document.getElementById("response-message").textContent = 'Please enter a professor\'s name.';
-    }
+        .catch(error => console.error("Error loading JSON data:", error));
 });
+
+function populateProfessorSummaryTable() {
+    const table = document.querySelector("#summary table");
+    let tbody = table.querySelector("tbody");
+
+    // If tbody is missing, create it
+    if (!tbody) {
+        tbody = document.createElement("tbody");
+        table.appendChild(tbody);
+    }
+
+    // Clear existing rows except for the header
+    while (tbody.rows.length > 0) {
+        tbody.deleteRow(0);
+    }
+
+    // Check if data is available
+    if (!window.professorData) {
+        console.error("Professor data is not loaded yet.");
+        return;
+    }
+
+    // Loop through each professor in the JSON data
+    Object.keys(window.professorData).forEach(professorName => {
+        const professor = window.professorData[professorName];
+        const row = tbody.insertRow();
+
+        row.insertCell().textContent = professor.courses.join(", "); // Course name(s)
+        row.insertCell().innerHTML = `<a href="${professor.url}" target="_blank">${professor.matched_name}</a>`; // Professor name with link
+        row.insertCell().textContent = professor.summary; // Summary text
+    });
+}
