@@ -165,10 +165,54 @@ def format_schedule(schedule, courses_data):
                 formatted_schedule.append(
                     f"  {course_code} - {class_info['meetingScheduleType']}: "
                     f"{class_info['beginTime'][:2]}:{class_info['beginTime'][2:]} - "
-                    f"{class_info['endTime'][:2]}:{class_info['endTime'][2:]}"
+                    f"{class_info['endTime'][:2]}:{class_info['endTime'][2:]} - "
+                    f"CRN: {class_info['courseReferenceNumber']}"
                 )
     
     return "\n".join(formatted_schedule)
+def format_schedule_to_json(schedule, courses_data):
+    """Format the schedule as a JSON structure"""
+    if not schedule:
+        return {
+            "success": False,
+            "message": "No valid schedule found that meets the specified time preferences!",
+            "schedule": None
+        }
+    
+    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    schedule_json = {
+        "success": True,
+        "message": "Schedule successfully generated",
+        "schedule": {
+            "days": []
+        }
+    }
+    
+    for day in days_order:
+        day_classes = [s for s in schedule if day in s['daysOfWeek']]
+        if day_classes:
+            day_data = {
+                "dayName": day,
+                "classes": []
+            }
+            
+            sorted_classes = sorted(day_classes, key=lambda x: parse_time(x['beginTime']))
+            
+            for class_info in sorted_classes:
+                course_code = next(code for code, sections in courses_data.items() 
+                                 if class_info in sections)
+                class_data = {
+                    "courseCode": course_code,
+                    "meetingType": class_info['meetingScheduleType'],
+                    "startTime": f"{class_info['beginTime'][:2]}:{class_info['beginTime'][2:]}",
+                    "endTime": f"{class_info['endTime'][:2]}:{class_info['endTime'][2:]}",
+                    "crn": class_info['courseReferenceNumber']
+                }
+                day_data["classes"].append(class_data)
+            
+            schedule_json["schedule"]["days"].append(day_data)
+    
+    return schedule_json
 
 # Example usage
 if __name__ == "__main__":
@@ -180,15 +224,19 @@ if __name__ == "__main__":
     
     # Example time preferences
     time_preferences = [
-        # No classes before 10:00 AM on Mondays
         TimePreference("Monday", "1000", "1700"),
-        # No classes after 3:00 PM on Fridays
         TimePreference("Friday", "0800", "1700"),
-        # Regular hours for other days
         TimePreference("Tuesday", "0800", "1700"),
         TimePreference("Wednesday", "0800", "1700"),
         TimePreference("Thursday", "0800", "1700"),
     ]
     
     best_schedule = find_best_schedule(courses_data, time_preferences)
-    print(format_schedule(best_schedule, courses_data))
+    schedule_json = format_schedule_to_json(best_schedule, courses_data)
+    
+    # Output the JSON
+    print(json.dumps(schedule_json, indent=2))
+    
+    # Optionally save to file
+    with open('schedule_output.json', 'w') as f:
+        json.dump(schedule_json, f, indent=2)
