@@ -168,6 +168,18 @@ th {
   cursor: pointer; 
 }
 
+#submit{
+  background-color: rgb(57, 138, 100);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: all 0.3s ease; 
+}
+
 #contact {
   text-align: center;
   padding: 40px;
