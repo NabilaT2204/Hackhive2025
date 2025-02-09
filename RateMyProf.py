@@ -1,6 +1,7 @@
 import json
 import requests
 from bs4 import BeautifulSoup
+import os
 
 def load_professors(file_path):
     """Load professors and their URLs from a JSON file."""
