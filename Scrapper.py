@@ -129,6 +129,29 @@ for url in json_urls:
                 # Extract faculty display names
                 display_names = [faculty.get("displayName") for faculty in course.get("faculty", []) if faculty.get("displayName")]
 
+            for meeting in course.get("meetingsFaculty", []):
+                meeting_time = meeting.get("meetingTime", {})
+                active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
+                
+                extracted_data.append({
+                    "displayName": ", ".join(display_names) if display_names else "N/A",
+                    "startdate": meeting_time.get("startDate"),
+                    "building": meeting_time.get("buildingDescription"),
+                    "enddate": meeting_time.get("endDate"),
+                    "campus": meeting_time.get("campusDescription"),
+                    "room":  meeting_time.get("room"),
+                    "courseReferenceNumber": course_ref_num,
+                    "meetingScheduleType": meeting_time.get("meetingScheduleType"),
+                    "beginTime": meeting_time.get("beginTime"),
+                    "endTime": meeting_time.get("endTime"),
+                    "hoursWeek": meeting_time.get("hoursWeek"),
+                    "daysOfWeek": active_days
+                })
+    
+    return extracted_data
+def save_extracted_data(extracted_data, output_file):
+    with open(output_file, 'w', encoding='utf-8') as file:
+        json.dump(extracted_data, file, indent=4)
                 for meeting in course.get("meetingsFaculty", []):
                     meeting_time = meeting.get("meetingTime", {})
                     active_days = [day.capitalize() for day in days_of_week if meeting_time.get(day, False)]
