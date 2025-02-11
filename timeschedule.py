@@ -1,5 +1,13 @@
 from itertools import product
 from datetime import datetime, timedelta
+import os
+
+# Ensure the "Schedule Jsons" directory exists
+SCHEDULE_DIR = "Schedule Jsons"
+os.makedirs(SCHEDULE_DIR, exist_ok=True)
+
+def get_file_path(filename):
+    return os.path.join(SCHEDULE_DIR, filename)
 
 class TimePreference:
     def __init__(self, day, earliest_time="0000", latest_time="2359"):
@@ -219,7 +227,7 @@ if __name__ == "__main__":
     import json
     
     # Load course data
-    with open('combined_courses.json', 'r') as file:
+    with open(get_file_path('combined_courses.json'), 'r') as file:
         courses_data = json.load(file)
     
     # Example time preferences
@@ -234,9 +242,7 @@ if __name__ == "__main__":
     best_schedule = find_best_schedule(courses_data, time_preferences)
     schedule_json = format_schedule_to_json(best_schedule, courses_data)
     
-    # Output the JSON
+    with open(get_file_path('schedule_output.json'), 'w') as f:
+            json.dump(schedule_json, f, indent=2)
+        
     print(json.dumps(schedule_json, indent=2))
-    
-    # Optionally save to file
-    with open('schedule_output.json', 'w') as f:
-        json.dump(schedule_json, f, indent=2)
