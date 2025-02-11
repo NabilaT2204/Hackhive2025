@@ -1,252 +1,170 @@
-*{
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  padding: 0;
+/* General Styles */
+* {
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
   margin: 0;
+  padding: 0;
 }
-    
-section{
-  height: 220vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-    
-#intro {
-  background-image: url("Images/FantasyBooks.avif");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
+body {
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+#intro {
+  background: url("Images/FantasyBooks.avif") center/cover no-repeat;
+  color: #fff;
+  text-align: center;
+  padding: 100px 20px;
+  position: relative;
+}
 #intro::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1;
 }
-
-#intro .Container {
+#intro .container {
   position: relative;
   z-index: 2;
 }
-
-#intro .Container h2 {
+#intro h1 {
   font-size: 3em;
+  margin-bottom: 20px;
+}
+.primary-button {
+  margin-bottom: 10px;
+  background-color: #007BFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.primary-button:hover {
+  background-color: #0056b3;
 }
 
-#Scroller {
-  position: relative;
-  top: 400px;
-  background-color: white;
-  color:#560909;
-  font-size: 30px;
-  font-weight: bold; 
-  height: 100px;
-  width: 300px;
-  border-radius: 50px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); 
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  transition: all 0.5s ease; 
+/* Sections */
+.content-section {
+  padding: 50px 20px;
+  background: #fff;
+  margin: 20px 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-#Scroller:hover {
-  transform: scale(1.1); 
-  cursor: pointer; 
+.content-section h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
 }
 
-#Scroller2 {
-  position: relative;
-  top: 400px;
-  background-color: white;
-  color:#560909;
-  font-size: 30px;
-  font-weight: bold; 
-  height: 100px;
-  width: 300px;
-  border-radius: 50px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); 
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  transition: all 0.5s ease; 
+/* Form */
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.form-group input {
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.course-item input {
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-#Scroller2:hover {
-  transform: scale(1.1); 
-  cursor: pointer; 
-}
-
-.Container h2{
-  margin-top: 2%;
-  font-size: 5em;
-}
-
-.Container p, ul{
-  margin-top: 2%;
-  font-size: 1.5rem;
-}
-
-#about {
-  text-align: center;
-  padding: 50px;
-  margin-top: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-#about h1 {
-  font-size: 70px;
-  margin-top: 50px;
-}
-
-#course-container {
+/* Table */
+.table-container {
+  overflow-x: auto;
   margin-top: 20px;
 }
-
-.course-item {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-  margin-left: 80px;
-}
-
-.course-input {
-  padding: 8px;
-  width: 200px;
-}
-
-
-/* Styling the Table */
-#courseSchedule {
-  margin-top: 20px;
-  width: 80%;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
-
-td, th {
-  border: 1px solid #dddddd;
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
   text-align: left;
-  padding: 8px;
-  width: 150px;
-  height: 40px;
 }
-
 th {
-  background-color: #f2f2f2;
+  background-color: #f4f4f4;
   font-weight: bold;
 }
 
-/* Styling Add Delete Buttons */
-.delete-course {
-  background-color: rgb(171, 35, 35);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: all 0.3s ease; 
-}
-
-.delete-course:hover {
-  background-color: rgb(83, 9, 9);
-  cursor: pointer; 
-}
-
-#add-course {
-  background-color: rgb(57, 138, 100);
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
+/* Button  */
+.secondary-button {
   margin-top: 10px;
-  transition: all 0.3s ease; 
-}
-
-#add-course:hover {
-  background-color: rgb(36, 74, 36);
-  cursor: pointer; 
-}
-
-#submit{
-  background-color: rgb(57, 138, 100);
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 20px;
-  margin-top: 10px;
-  transition: all 0.3s ease; 
-}
-
-#summary{
-  margin-top: 20px;
-  width: 80%;
-}
-
-#summarySection h1 {
-  font-size: 70px;
-  font-weight: bold;
-  margin-bottom: 50px;
-  padding: 20px;
-}
-
-#contact {
-  text-align: center;
-  padding: 40px;
-}
-
-#contact h1 {
-  font-size: 50px;
-}
-
-#contact ul li{
-  list-style: none;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 1rem;
-}
-
-.download-btn {
-  background-color: #4CAF50;
-  color: white;
+  margin-bottom: 10px;
+  background-color: #28a745;
+  color: #fff;
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  margin-top: 20px;
-  font-size: 16px;
+  transition: background-color 0.3s;
+}
+.secondary-button:hover {
+  background-color: #218838;
 }
 
-.download-btn:hover {
-  background-color: #45a049;
+/* New Delete Course Button Styles */
+.delete-course-button {
+  background-color: #dc3545;
+  color: #fff;
+  padding: 5px 9px;  /* Bigger padding */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1.1em;    /* Bigger font */
+  font-weight: bold;
+}
+.delete-course-button:hover {
+  background-color: #c82333;
+}
+/* Download Calendar Button (using primary button style) */
+.download-calendar-button {
+  margin-top: 10px;
+  background-color: #007BFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.download-calendar-button:hover {
+  background-color: #0056b3;
 }
 
-.download-btn:active {
-  background-color: #3d8b40;
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background: #333;
+  color: #fff;
+  font-size: 0.9em;
 }
