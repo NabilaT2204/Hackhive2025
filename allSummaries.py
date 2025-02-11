@@ -1,13 +1,54 @@
 import json
-import subprocess
-import time
+import os
 from typing import Dict, List, Optional, Set
-from RateMyProf import load_professors, get_professor_url, scrape_reviews, save_reviews
+from RateMyProf import load_professors, get_professor_url, scrape_reviews
 from Summarizer import start_ollama_server, get_summary
 from difflib import get_close_matches
 
+def ensure_schedule_jsons_dir():
+    """Ensure the Schedule Jsons directory exists."""
+    os.makedirs("Schedule Jsons", exist_ok=True)
+
+def initialize_reviews_file():
+    """Clear and initialize the reviews file with an empty structure."""
+    reviews_file = os.path.join("Schedule Jsons", "Reviews.json")
+    initial_data = {
+        "professors": {}  # Will store professor reviews as: "prof_name": {"reviews": [...]}
+    }
+    with open(reviews_file, 'w', encoding='utf-8') as f:
+        json.dump(initial_data, f, indent=4, ensure_ascii=False)
+    return reviews_file
+
+def save_professor_reviews(professor_name: str, reviews: List[str]):
+    """Add or update reviews for a professor in the reviews file."""
+    reviews_file = os.path.join("Schedule Jsons", "Reviews.json")
+    
+    try:
+        with open(reviews_file, 'r', encoding='utf-8') as f:
+            all_reviews = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        all_reviews = {"professors": {}}
+    
+    all_reviews["professors"][professor_name] = {
+        "reviews": reviews
+    }
+    
+    with open(reviews_file, 'w', encoding='utf-8') as f:
+        json.dump(all_reviews, f, indent=4, ensure_ascii=False)
+
+def get_professor_reviews(professor_name: str) -> Optional[List[str]]:
+    """Retrieve reviews for a specific professor from the reviews file."""
+    reviews_file = os.path.join("Schedule Jsons", "Reviews.json")
+    
+    try:
+        with open(reviews_file, 'r', encoding='utf-8') as f:
+            all_reviews = json.load(f)
+            prof_data = all_reviews["professors"].get(professor_name)
+            return prof_data["reviews"] if prof_data else None
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
 def normalize_name(name: str) -> str:
-    """Normalize a name by converting from 'Last, First' to 'First Last' format and removing titles."""
     titles = ['Dr.', 'Prof.', 'Professor']
     name = name.strip()
     for title in titles:
@@ -21,14 +62,12 @@ def normalize_name(name: str) -> str:
     return ' '.join(part for part in parts if part).lower()
 
 def format_display_name(name: str) -> str:
-    """Convert name from 'Last, First' to 'First Last' format for display."""
     if ',' in name:
         last_name, first_name = name.split(',', 1)
         return f"{first_name.strip()} {last_name.strip()}"
     return name
 
 def find_matching_professor(prof_name: str, professors_data: List[dict]) -> Optional[dict]:
-    """Find a professor in the data using fuzzy matching."""
     normalized_search = normalize_name(prof_name)
     prof_dict = {normalize_name(p['name']): p for p in professors_data}
     
@@ -44,8 +83,8 @@ def find_matching_professor(prof_name: str, professors_data: List[dict]) -> Opti
     return None
 
 def extract_professors_and_courses(schedule_file: str) -> Dict[str, Set[str]]:
-    """Extract unique professors and their corresponding courses from the schedule JSON file."""
-    with open(schedule_file, 'r') as f:
+    file_path = os.path.join("Schedule Jsons", schedule_file)
+    with open(file_path, 'r') as f:
         schedule_data = json.load(f)
     
     professor_courses = {}
@@ -66,15 +105,21 @@ def extract_professors_and_courses(schedule_file: str) -> Dict[str, Set[str]]:
     
     return professor_courses
 
-def get_professor_summary(prof_name: str, courses: Set[str], professors_data: List[dict]) -> Optional[dict]:
-    """Get reviews and generate summary for a single professor."""
+def get_professor_summary(prof_name: str, courses: Set[str], professors_data: List[dict]) -> dict:
     display_name = format_display_name(prof_name)
     print(f"\nProcessing professor: {display_name}")
     
     matched_prof = find_matching_professor(prof_name, professors_data)
     if not matched_prof:
         print(f"No matching professor found for {display_name}")
-        return None
+        return {
+            'matched_name': display_name,
+            'schedule_name': display_name,
+            'courses': list(courses),
+            'url': "",
+            'summary': "Professor was not found in RateMyProf database",
+            'review_count': 0
+        }
     
     url = matched_prof['url']
     
@@ -82,17 +127,26 @@ def get_professor_summary(prof_name: str, courses: Set[str], professors_data: Li
     reviews = scrape_reviews(url)
     if not reviews:
         print("No reviews found")
-        return None
+        return {
+            'matched_name': matched_prof['name'],
+            'schedule_name': display_name,
+            'courses': list(courses),
+            'url': url,
+            'summary': "No reviews found",
+            'review_count': 0
+        }
     
-    save_reviews(reviews)
+    # Save reviews for this professor
+    save_professor_reviews(matched_prof['name'], reviews)
+    reviews_text = '\n'.join(reviews)
     
     print("Generating summary...")
-    summary = get_summary('\n'.join(reviews))
+    summary = get_summary(matched_prof['name'], reviews_text)
     
     return {
         'matched_name': matched_prof['name'],
         'schedule_name': display_name,
-        'courses': list(courses),  # Convert set to list for JSON serialization
+        'courses': list(courses),
         'url': url,
         'summary': summary,
         'review_count': len(reviews)
@@ -103,35 +157,34 @@ def main():
     ollama_process = start_ollama_server()
     
     try:
-        # Load schedule and extract professors with their courses
-        professor_courses = extract_professors_and_courses('generated_schedule.json')
+        ensure_schedule_jsons_dir()
+        
+        # Initialize empty reviews file at the start
+        print("Initializing reviews file...")
+        initialize_reviews_file()
+        
+        professors_file = os.path.join("professorURLs", "ProfessorURLs.json")
+        schedule_file = "generated_schedule.json"
+        
+        professor_courses = extract_professors_and_courses(schedule_file)
         print(f"Found {len(professor_courses)} professors in schedule")
         
         try:
-            professors_data = load_professors('ProfessorURLs.json')
+            professors_data = load_professors(professors_file)
         except FileNotFoundError:
-            print("Error: ProfessorURLs.json not found")
+            print(f"Error: {professors_file} not found")
             return
         
-        # Process each professor and collect summaries
         summaries = {}
         for prof, courses in professor_courses.items():
-            result = get_professor_summary(prof, courses, professors_data)
-            if result:
-                summaries[prof] = result
+            summaries[prof] = get_professor_summary(prof, courses, professors_data)
         
-        output_file = 'professor_summaries.json'
+        output_file = os.path.join("Schedule Jsons", "professor_summaries.json")
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(summaries, f, indent=2, ensure_ascii=False)
         
         print(f"\nSummaries saved to {output_file}")
-        print(f"Successfully processed {len(summaries)} out of {len(professor_courses)} professors")
-        
-        if len(summaries) < len(professor_courses):
-            print("\nProfessors not found:")
-            for prof in professor_courses:
-                if prof not in summaries:
-                    print(f"- {prof}")
+        print(f"Successfully processed {len(summaries)} professors")
         
     except Exception as e:
         print(f"An error occurred: {str(e)}")
