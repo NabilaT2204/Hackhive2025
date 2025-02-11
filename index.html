@@ -1,112 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>How to create a website using HTML and CSS</title>
-<link rel="stylesheet" href="style.css">
-<script src="main.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ontario Tech Course Scheduler</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js"></script>
 </head>
-    <body>
-        <main>
-            <section id="intro">
-                <div class="Container">
-                    <h2>Ontario Tech Course Scheduler</h2>
-                    <button id="Scroller">Get Started</button>
-                </div> 
-            </section>
+<body>
+  <header id="intro">
+    <div class="container">
+      <h1>Ontario Tech Course Scheduler</h1>
+      <button id="get-started" class="primary-button">Get Started</button>
+    </div>
+  </header>
 
-            <section id="about">
-                <div class="Container">
-                    <h1>Get Started</h1>
-                    <p>Add Up To 5 Courses</p>
-                    <div id="course-container">
-                        <div class="course-item">
-                            <input type="text" class="course-input" placeholder="Enter course (e.g., CSCI4040)">
-                        </div>
-                    </div>
-                    <button id="add-course">+</button>
-                </div>
-                <div class="Restrictions">
-                    <p>Please Set Your Time Restrictions:</p>
+  <main>
+    <section id="about" class="content-section">
+      <div class="container">
+        <h2>Get Started</h2>
+        <p>Add Up To 5 Courses</p>
+        <div id="course-container">
+          <div class="course-item">
+            <input type="text" class="course-input" placeholder="Enter course (e.g., CSCI4040)">
+          </div>
+        </div>
+        <button id="add-course" class="secondary-button">+</button>
 
-                    <form>
-                      <label for="monday">Monday:</label>
-                      <input type="text" id="mondayStart" name="mondayStart" placeholder="24hr format, e.g., 1100">
-                      <input type="text" id="mondayEnd" name="mondayEnd" placeholder="24hr format, e.g., 2300"><br><br>
-                    
-                      <label for="tuesday">Tuesday:</label>
-                      <input type="text" id="tuesdayStart" name="tuesdayStart" placeholder="24hr format, e.g., 1100">
-                      <input type="text" id="tuesdayEnd" name="tuesdayEnd" placeholder="24hr format, e.g., 2300"><br><br>
-                    
-                      <label for="wednesday">Wednesday:</label>
-                      <input type="text" id="wednesdayStart" name="wednesdayStart" placeholder="24hr format, e.g., 1100">
-                      <input type="text" id="wednesdayEnd" name="wednesdayEnd" placeholder="24hr format, e.g., 2300"><br><br>
-                    
-                      <label for="thursday">Thursday:</label>
-                      <input type="text" id="thursdayStart" name="thursdayStart" placeholder="24hr format, e.g., 1100">
-                      <input type="text" id="thursdayEnd" name="thursdayEnd" placeholder="24hr format, e.g., 2300"><br><br>
-                    
-                      <label for="friday">Friday:</label>
-                      <input type="text" id="fridayStart" name="fridayStart" placeholder="24hr format, e.g., 1100">
-                      <input type="text" id="fridayEnd" name="fridayEnd" placeholder="24hr format, e.g., 2300"><br><br>
-                    
-                      <button id="submit">Submit</button>
-                    </form>                    
-                </div>
-                <div id="courseSchedule">
-                    <table>
-                        <tr>
-                            <th>Course</th>
-                            <th>CRN</th>
-                            <th>Room</th>
-                            <th>Type</th>
-                            <th>Day</th>
-                            <th>Time</th>
-                            <th>Campus</th>
-                          </tr>
-                          <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                          </tr>
-                    </table>
-                </div>
-                <button id="Scroller2">Check Summaries</button>
-            </section>
+        <div class="time-restrictions">
+          <h3>Please Set Your Time Restrictions:</h3>
+          <form id="time-restriction-form">
+            <div class="form-group">
+              <label for="monday">Monday:</label>
+              <input type="text" id="mondayStart" name="mondayStart" placeholder="Start (e.g., 1100)">
+              <input type="text" id="mondayEnd" name="mondayEnd" placeholder="End (e.g., 2300)">
+            </div>
+            <div class="form-group">
+                <label for="tuesday">Tuesday:</label>
+                <input type="text" id="tuesdayStart" name="tuesdayStart" placeholder="Start (e.g., 1100)">
+                <input type="text" id="tuesdayEnd" name="tuesdayEnd" placeholder="End (e.g., 2300)">
+            </div>
+            <div class="form-group">
+                <label for="wednesday">Wednesday:</label>
+                <input type="text" id="wednesdayStart" name="wednesdayStart" placeholder="Start (e.g., 1100)">
+                <input type="text" id="wednesdayEnd" name="wednesdayEnd" placeholder="End (e.g., 2300)">
+            </div>
+            <div class="form-group">
+                <label for="thursday">Thursday:</label>
+                <input type="text" id="thursdayStart" name="thursdayStart" placeholder="Start (e.g., 1100)">
+                <input type="text" id="thursdayEnd" name="thursdayEnd" placeholder="End (e.g., 2300)">
+            </div>
+            <div class="form-group">
+                <label for="friday">Friday:</label>
+                <input type="text" id="fridayStart" name="fridayStart" placeholder="Start (e.g., 1100)">
+                <input type="text" id="fridayEnd" name="fridayEnd" placeholder="End (e.g., 2300)">
+            </div>
+            <button id="submit" class="primary-button">Submit</button>
+            <div id="validation-errors"></div>
+          </form>
+        </div>
 
-            <section id="summarySection">
-                <h1>Professor Summary</h1>
-                <div id="summary">
-                    <table>
-                        <tr>
-                            <th>Course Name</th>
-                            <th>Professor</th>
-                            <th>Summary</th>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </table>
-                </div>
-            </section>
-            
+        <div id="course-schedule" class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>CRN</th>
+                <th>Room</th>
+                <th>Type</th>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Campus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-            <section id="contact">
-                <div class="container">
-                    <h1>Hackhive 2025</h1>
-                    <p>Members</p>
-                    <ul>
-                        <li>Allan Sangle</li>
-                        <li>Nabila Tabassum</li>
-                        <li>Joseph Salama</li>
-                    </ul>
-                </div>
-            </section>
-        </main>
-    </body>
+    <section id="summary-section" class="content-section">
+      <div class="container">
+        <h2>Professor Summary</h2>
+        <div id="summary" class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Course Name</th>
+                <th>Professor</th>
+                <th>Summary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    
+    <section id="contact" class="content-section">
+      <div class="container">
+        <h2>Hackhive 2025</h2>
+        <p>Members</p>
+        <ul>
+          <li>Allan Sangle</li>
+          <li>Nabila Tabassum</li>
+          <li>Joseph Salama</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Ontario Tech Course Scheduler. All Rights Reserved.</p>
+  </footer>
+</body>
 </html>
