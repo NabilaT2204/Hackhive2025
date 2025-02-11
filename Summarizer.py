@@ -3,6 +3,8 @@ import subprocess
 import time
 import atexit
 import sys
+import json
+import os
 
 def start_ollama_server():
     try:
@@ -40,7 +42,7 @@ def start_ollama_server():
     time.sleep(2)
     try:
         pull_response = requests.post("http://localhost:11434/api/pull", 
-            json={"name": "deepseek-r1:1.5b"},
+            json={"name": "llama2:latest"},
             timeout=30
         )
         if pull_response.status_code != 200:
@@ -71,17 +73,17 @@ def extract_final_response(text):
         return final_part.strip()
     return text.strip()
 
-def get_summary(text):
+def get_summary(professor_name, reviews_text):
     try:
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": "deepseek-r1:1.5b",
+                "model": "llama2:latest",
                 "prompt": f"""
-                The text provided is reviews of a professor. Each line is a different review made by a different person.
+                The text provided is reviews of Professor {professor_name}. Each line is a different review made by a different person.
                 Write a brief summary of this text (about 3-4 sentences).
-                Heres an example of what it should look like: [professor name] is an outstanding professor who excels in his teaching, supports everyone's well-being, and is genuinely humorous, making every room a better place. He’s also a fantastic mentor for students seeking practical experience:
-                Be honest with whether the reviews like the professor, or dislike, and create an opinion on it: {text}
+                Here's an example of what it should look like: [professor name] is an outstanding professor who excels in his teaching, supports everyone's well-being, and is genuinely humorous, making every room a better place. He's also a fantastic mentor for students seeking practical experience.
+                Be honest with whether the reviews like the professor, or dislike, and create an opinion on it: {reviews_text}
                 """,
                 "stream": False,
                 "options": {
@@ -121,22 +123,33 @@ def main():
     try:
         process = start_ollama_server()
         
+        # Read from the JSON file in Schedule Jsons folder
+        json_path = os.path.join("Schedule Jsons", "Reviews.json")
         try:
-            with open("Reviews.txt", "r", encoding='utf-8') as f:
-                reviews = f.read()
-                print(f"Read {len(reviews)} characters from Reviews.txt")
+            with open(json_path, "r", encoding='utf-8') as f:
+                data = json.load(f)
+                professor_name = data.get("professor", "Unknown Professor")
+                reviews = data.get("reviews", [])
+                
+                if not reviews:
+                    print("Error: No reviews found in the JSON file")
+                    return
+                
+                # Join all reviews with newlines for processing
+                reviews_text = "\n".join(reviews)
+                print(f"Read {len(reviews)} reviews for {professor_name}")
+                
         except FileNotFoundError:
-            print("Error: Reviews.txt file not found")
+            print(f"Error: {json_path} file not found")
+            return
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {str(e)}")
             return
         except Exception as e:
             print(f"Error reading file: {str(e)}")
             return
             
-        if not reviews.strip():
-            print("Error: Reviews.txt is empty")
-            return
-            
-        summary = get_summary(reviews)
+        summary = get_summary(professor_name, reviews_text)
         if summary:
             print("\nSummary:")
             print(summary)
