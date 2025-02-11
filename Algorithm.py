@@ -1,6 +1,34 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
+import os
+import traceback
+
+def ensure_directories():
+    """Create necessary directories if they don't exist"""
+    directories = [
+        os.path.join("logs", "Algorithm Logs"),
+        "Schedule Jsons"
+    ]
+    for directory in directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+def log_error(error_message, traceback_info=None):
+    """Log error to a timestamped file in the logs/Algorithm Logs directory"""
+    ensure_directories()
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join("logs", "Algorithm Logs", f"Algorithm_logs_{timestamp}.txt")
+    
+    with open(filename, "w") as f:
+        f.write(f"Error occurred at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write("=" * 50 + "\n")
+        f.write(f"Error message: {error_message}\n")
+        if traceback_info:
+            f.write("\nTraceback:\n")
+            f.write(traceback_info)
+    
+    print(f"Error logged to: {filename}")
 
 class TimePreference:
     def __init__(self, restrictions=None):
@@ -38,37 +66,48 @@ def validate_schedule_possibility(course_data, time_preferences=None):
     """
     Validate that at least one section of each required component (LEC, LAB, TUT) 
     is available within the time preferences for each course.
-    Returns (is_valid, error_message)
+    Returns (is_valid, error_list)
     """
-    error_messages = []
+    error_list = []  # Changed from error_messages
     
     for course_code, sessions in course_data.items():
-        # Get required session types for this course
         required_types = get_required_session_types(sessions)
         available_types = defaultdict(bool)
         
-        # Check each session type
         for session in sessions:
             session_type = session['meetingScheduleType']
             if required_types[session_type]:
                 if not time_preferences or time_preferences.is_time_allowed(session):
                     available_types[session_type] = True
         
-        # Verify all required types are available
         missing_types = []
         for session_type, required in required_types.items():
             if required and not available_types[session_type]:
                 missing_types.append(session_type)
         
         if missing_types:
-            error_messages.append(
-                f"Course {course_code} has no available {', '.join(missing_types)} "
-                "sections within the specified time preferences"
-            )
+            error_list.append({  # Structured error format
+                "course": course_code,
+                "missing_types": missing_types,
+                "message": f"Course {course_code} has no available {', '.join(missing_types)} sections within the specified time preferences."
+            })
     
-    is_valid = len(error_messages) == 0
-    error_message = "\n".join(error_messages) if error_messages else ""
-    return is_valid, error_message
+    is_valid = len(error_list) == 0
+    return is_valid, error_list  # Now returns list instead of string
+
+def log_validity_errors(errors):
+    """Log validation errors to validity.json"""
+    ensure_directories()
+    validity_path = os.path.join("validation", "validity.json")
+    
+    error_data = {
+        "validation_errors": errors  # Directly use the structured list
+    }
+    
+    with open(validity_path, 'w') as f:
+        json.dump(error_data, f, indent=2)
+    
+    print(f"Validation issues logged to: {validity_path}")
 
 def convert_time_to_minutes(time_str):
     """Convert time string (e.g., '0940') to minutes since midnight."""
@@ -367,52 +406,86 @@ def schedule_to_json(schedule):
     
     return json_schedule
 
+# Modify the main() function in Algorithm.py
 def main():
     """
     Main function to run the scheduling algorithm.
-    Expects time restrictions data in 'time_restrictions.json' and course data in 'combined_courses.json'
+    Returns None and logs error if schedule cannot be generated.
     """
     try:
+        print("Starting schedule generation...")
+        ensure_directories()
+        
         # Load course data
-        with open('combined_courses.json', 'r') as f:
-            course_data = json.load(f)
+        try:
+            combined_courses_path = os.path.join("Schedule Jsons", "combined_courses.json")
+            with open(combined_courses_path, 'r') as f:
+                course_data = json.load(f)
+            print("Successfully loaded course data")
+        except FileNotFoundError:
+            log_error("combined_courses.json not found", traceback.format_exc())
+            return None
+        except json.JSONDecodeError:
+            log_error("Error parsing combined_courses.json", traceback.format_exc())
+            return None
 
         # Load time restrictions if provided
         try:
-            with open('time_restrictions.json', 'r') as f:
+            restrictions_path = os.path.join("Schedule Jsons", "time_restrictions.json")
+            with open(restrictions_path, 'r') as f:
                 restrictions_data = json.load(f)
+                
+                # Helper function to get time range for a day
+                def get_time_range(day_data):
+                    start = day_data['start']
+                    end = day_data['end']
+                    if start == "0000" and end == "0000":
+                        return {'earliest': '0000', 'latest': '2359'}
+                    return {'earliest': start, 'latest': end}
+                
                 time_prefs = TimePreference({
-                    'Monday': {'earliest': restrictions_data['mondayStart'], 'latest': restrictions_data['mondayEnd']},
-                    'Tuesday': {'earliest': restrictions_data['tuesdayStart'], 'latest': restrictions_data['tuesdayEnd']},
-                    'Wednesday': {'earliest': restrictions_data['wednesdayStart'], 'latest': restrictions_data['wednesdayEnd']},
-                    'Thursday': {'earliest': restrictions_data['thursdayStart'], 'latest': restrictions_data['thursdayEnd']},
-                    'Friday': {'earliest': restrictions_data['fridayStart'], 'latest': restrictions_data['fridayEnd']}
+                    'Monday': get_time_range(restrictions_data['monday']),
+                    'Tuesday': get_time_range(restrictions_data['tuesday']),
+                    'Wednesday': get_time_range(restrictions_data['wednesday']),
+                    'Thursday': get_time_range(restrictions_data['thursday']),
+                    'Friday': get_time_range(restrictions_data['friday'])
                 })
+                print("Successfully loaded time restrictions")
         except (FileNotFoundError, json.JSONDecodeError):
-            time_prefs = TimePreference()  # Use default if no restrictions provided
+            time_prefs = TimePreference()
+            print("No time restrictions found, using default preferences")
 
         # Validate schedule possibility
-        is_valid, error_message = validate_schedule_possibility(course_data, time_prefs)
+        is_valid, error_list = validate_schedule_possibility(course_data, time_prefs)
         if not is_valid:
-            print(f"ERROR: Cannot create valid schedule: {error_message}")
+            log_validity_errors(error_list)  # Directly pass the list
             return None
+        print("Schedule validation successful")
 
         # Generate schedule
+        print("Generating optimal schedule...")
         schedule = select_best_schedule(course_data, time_prefs)
         if not schedule:
-            print("ERROR: Could not generate a valid schedule")
+            log_error("Schedule generation failed", 
+                     "Could not generate a valid schedule with the given constraints")
             return None
+        print("Successfully generated schedule")
 
         # Convert schedule to JSON and save
-        json_schedule = schedule_to_json(schedule)
-        with open('generated_schedule.json', 'w') as f:
-            json.dump(json_schedule, f, indent=2)
-
-        print("Schedule generated successfully")
-        return schedule
+        try:
+            json_schedule = schedule_to_json(schedule)
+            schedule_path = os.path.join("Schedule Jsons", "generated_schedule.json")
+            with open(schedule_path, 'w') as f:
+                json.dump(json_schedule, f, indent=2)
+            print("Successfully saved generated schedule to JSON")
+            
+            return json_schedule
+        except Exception as e:
+            log_error("Error saving generated schedule", traceback.format_exc())
+            return None
 
     except Exception as e:
-        print(f"Error in main: {str(e)}")
+        log_error("Unexpected error in schedule generation", traceback.format_exc())
         return None
 
 if __name__ == "__main__":
