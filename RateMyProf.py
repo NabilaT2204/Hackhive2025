@@ -3,6 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
+def ensure_schedule_jsons_dir():
+    """Ensure the Schedule Jsons directory exists."""
+    os.makedirs("Schedule Jsons", exist_ok=True)
+
 def load_professors(file_path):
     """Load professors and their URLs from a JSON file."""
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -32,15 +36,35 @@ def scrape_reviews(url):
     
     return reviews
 
-def save_reviews(reviews, filename="Reviews.txt"):
-    """Save reviews to a text file."""
-    with open(filename, 'w', encoding='utf-8') as f:
-        for review in reviews:
-            f.write(review + "\n")
+def save_reviews(reviews, professor_name):
+    """Save reviews to a JSON file in the Schedule Jsons folder."""
+    ensure_schedule_jsons_dir()
+    
+    # Prepare the data structure
+    review_data = {
+        "professor": professor_name,
+        "reviews": reviews
+    }
+    
+    # Save to JSON file in the Schedule Jsons folder
+    file_path = os.path.join("Schedule Jsons", "Reviews.json")
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(review_data, f, indent=4, ensure_ascii=False)
 
 def main():
-    file_path = "ProfessorURLs.json"  # Path to the JSON file
-    professors = load_professors(file_path)
+    ensure_schedule_jsons_dir()
+    
+    # Update path to read from Schedule Jsons folder
+    file_path = os.path.join("Schedule Jsons", "ProfessorURLs.json")
+    
+    try:
+        professors = load_professors(file_path)
+    except FileNotFoundError:
+        print(f"Error: {file_path} not found")
+        return
+    except json.JSONDecodeError:
+        print(f"Error: {file_path} is not a valid JSON file")
+        return
     
     name = input("Enter professor's name: ")
     url = get_professor_url(professors, name)
@@ -53,8 +77,8 @@ def main():
     reviews = scrape_reviews(url)
     
     if reviews:
-        save_reviews(reviews)
-        print("Reviews saved to Reviews.txt")
+        save_reviews(reviews, name)
+        print("Reviews saved to Schedule Jsons/Reviews.json")
     else:
         print("No reviews found.")
 
