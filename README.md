@@ -43,9 +43,9 @@ Class Scheduler is a powerful tool designed to help students organize their seme
    pip install bs4 flask selenium webdriver icalendar pytz ollama requests flask_cors icalendar
    ```
 
-3. Ensure you have access to the Deepseek-R1 model and configure it as per the documentation:
+3. Ensure you have access to the latest Llama 2 model and configure it as per the documentation:
    ```sh
-   ollama run deepseek-r1:1.5b
+   ollama pull llama2:latest
    ```
 
 4. Run the application:
@@ -63,7 +63,7 @@ Class Scheduler is a powerful tool designed to help students organize their seme
 ## Technologies Used
 
 - **Python**: Core programming language.
-- **Deepseek-R1**: AI-powered model for summarization and calendar generation.
+- **Llama2**: AI-powered model for summarization and calendar generation.
 - **RateMyProf**: Source of professor reviews.
 - **ICS (iCalendar)**: For generating downloadable schedules.
 - **BeautifulSoup (bs4)**: For web scraping tasks.
@@ -79,5 +79,5 @@ Class Scheduler is a powerful tool designed to help students organize their seme
 
 ## Acknowledgments
 
-- Deepseek-R1 by Ollama for its powerful summarization and calendar capabilities.
+- Llama 2 powered by Meta AI for its powerful summarization and calendar capabilities.
 - RateMyProfessors for providing valuable insights into professor reviews.
