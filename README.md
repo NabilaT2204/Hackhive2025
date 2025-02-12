@@ -11,19 +11,19 @@ Class Scheduler is a powerful tool designed to help students organize their seme
 - The tool organizes their schedule to minimize gaps and maximize free days, ensuring an efficient semester plan.
 
 ### 2. Professor Reviews
-- View summarized professor reviews from RateMyProf using the Deepseek-R1 model from Ollama.
+- View summarized professor reviews from RateMyProf using the Llama 2 model by Meta AI from Ollama.
 - Gain insights into the quality of instruction and class expectations to make informed decisions.
 
 ### 3. Class Calendar
 - Generate a downloadable calendar for your schedule.
 - Easily visualize your class timings and plan your semester effectively.
-- Calendar generation is powered by Deepseek-R1 from Ollama for seamless integration.
+- Calendar generation is powered by Llama 2 from Ollama for seamless integration.
 
 ## Installation
 
 ### Prerequisites
 - Python 3.8 or later
-- Deepseek-R1 model from Ollama
+- Llama 2 model from Ollama
 - Required Python packages (specified below)
 
 ### Steps
