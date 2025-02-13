@@ -1,122 +1,97 @@
-# pip install icalendar pytz
 from datetime import datetime, timedelta
 from icalendar import Calendar, Event
 import pytz
 import json
 import sys
-import os
 from pathlib import Path
 
-def ensure_directory_exists(directory):
-    """Create directory if it doesn't exist"""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        print(f"[DEBUG] Created directory: {directory}")
-
-def get_formatted_room(building, room):
-    """Format room number based on building"""
-    if building == "Shawenjigewining Hall":
-        return f"SHA{room}"
-    return room
-
 def create_ics_from_json(json_data):
-    print("[DEBUG] Creating ICS file from JSON data...")
+    # Create calendar with minimal required properties
     cal = Calendar()
-    cal.add('prodid', '-//Schedule Converter//mxm.dk//')
+    cal.add('prodid', '-//Test Calendar//EN')
     cal.add('version', '2.0')
-    
+    cal.add('calscale', 'GREGORIAN')
+
+    # Set timezone
+    tz = pytz.timezone('America/Toronto')
+
+    # Get the schedule start date (next Monday)
     schedule_date = datetime.strptime(json_data['schedule_info']['generated_date'], '%Y-%m-%d %H:%M:%S')
-    print(f"[DEBUG] Schedule generated date: {schedule_date}")
-    
-    timezone = pytz.timezone('America/Toronto')
-    
+    start_date = schedule_date.date()
+    while start_date.weekday() != 0:  # 0 is Monday
+        start_date += timedelta(days=1)
+
+    # Process each week's schedule for 12 weeks
     weekday_map = {
         'Monday': 0, 'Tuesday': 1, 'Wednesday': 2,
-        'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6
+        'Thursday': 3, 'Friday': 4
     }
-    
-    for day, classes in json_data['weekly_schedule'].items():
-        print(f"[DEBUG] Processing {day}'s schedule...")
-        for class_info in classes:
-            print(f"[DEBUG] Processing class: {class_info['course_code']}")
-            event = Event()
-            
-            formatted_room = get_formatted_room(class_info['building'], class_info['room'])
-            description = f"Campus: {class_info['campus']}\nBuilding: {class_info['building']}\nRoom: {formatted_room}"
-            
-            event.add('summary', f"{class_info['course_code']} - {class_info['type']}")
-            event.add('description', description)
-            
-            today = schedule_date.date()
-            days_ahead = weekday_map[day] - today.weekday()
-            if days_ahead <= 0:
-                days_ahead += 7
-            next_day = today + timedelta(days=days_ahead)
-            
-            start_time = datetime.strptime(class_info['start_time'], '%I:%M %p').time()
-            end_time = datetime.strptime(class_info['end_time'], '%I:%M %p').time()
-            
-            start_datetime = timezone.localize(datetime.combine(next_day, start_time))
-            end_datetime = timezone.localize(datetime.combine(next_day, end_time))
-            
-            print(f"[DEBUG] Event start: {start_datetime}, end: {end_datetime}")
-            
-            event.add('dtstart', start_datetime)
-            event.add('dtend', end_datetime)
-            event.add('rrule', {'freq': 'weekly', 'count': 12})
-            
-            location = f"{class_info['building']} {formatted_room}, {class_info['campus']}"
-            event.add('location', location)
-            
-            cal.add_component(event)
-    
-    return cal
 
-def process_json_files(schedule_dir):
-    """Process all JSON files in the specified directory"""
-    for json_file in schedule_dir.glob('generated_schedule.json'):
-        try:
-            print(f"[DEBUG] Processing {json_file.name}...")
-            with open(json_file, 'r') as f:
-                schedule_data = json.load(f)
-            
-            calendar = create_ics_from_json(schedule_data)
-            
-            # Create output filename by replacing .json with .ics
-            output_filename = 'schedule.ics'
-            output_path = schedule_dir / output_filename
-            
-            print(f"[DEBUG] Saving calendar to {output_path}")
-            with open(output_path, 'wb') as f:
-                f.write(calendar.to_ical())
-            print(f"[DEBUG] Successfully created {output_filename}")
-            
-        except Exception as e:
-            print(f"[ERROR] Failed to process {json_file.name}: {str(e)}")
+    for week in range(12):  # Repeat for 12 weeks
+        week_start_date = start_date + timedelta(weeks=week)
+
+        for day, classes in json_data['weekly_schedule'].items():
+            if not classes:  # Skip empty days
+                continue
+
+            # Calculate the date for this day's classes in the current week
+            day_offset = weekday_map[day]
+            class_date = week_start_date + timedelta(days=day_offset)
+
+            # Process each class
+            for class_info in classes:
+                event = Event()
+
+                # Parse times
+                start_time = datetime.strptime(class_info['start_time'], '%I:%M %p').time()
+                end_time = datetime.strptime(class_info['end_time'], '%I:%M %p').time()
+
+                # Create event start and end times
+                start = tz.localize(datetime.combine(class_date, start_time))
+                end = tz.localize(datetime.combine(class_date, end_time))
+
+                # Add basic event details
+                event.add('summary', f"{class_info['course_code']} {class_info['type']}")
+                event.add('dtstart', start)
+                event.add('dtend', end)
+                event.add('location', f"{class_info['building']} {class_info['room']}")
+
+                # Add to calendar
+                cal.add_component(event)
+
+    return cal
 
 def main():
     try:
-        print("[DEBUG] Starting main process...")
-        
-        # Get the directory where the script is located
+        # Get script directory
         script_dir = Path(__file__).parent
         schedule_dir = script_dir / "Schedule Jsons"
         
-        # Ensure the Schedule Jsons directory exists
-        ensure_directory_exists(schedule_dir)
+        # Create directory if it doesn't exist
+        schedule_dir.mkdir(exist_ok=True)
         
-        # Check if there are any JSON files to process
-        json_files = list(schedule_dir.glob('generated_schedule.json'))
-        if not json_files:
-            print("[ERROR] No JSON files found in 'Schedule Jsons' directory")
+        # Find and process JSON file
+        json_file = schedule_dir / 'generated_schedule.json'
+        if not json_file.exists():
+            print("Error: generated_schedule.json not found")
             sys.exit(1)
-            
-        # Process all JSON files in the directory
-        process_json_files(schedule_dir)
-        print("[DEBUG] All files processed successfully!")
+        
+        # Read and process JSON
+        with open(json_file, 'r', encoding='utf-8') as f:
+            schedule_data = json.load(f)
+        
+        # Create calendar
+        calendar = create_ics_from_json(schedule_data)
+        
+        # Save ICS file
+        output_path = schedule_dir / 'schedule.ics'
+        with open(output_path, 'wb') as f:
+            f.write(calendar.to_ical())
+        
+        print(f"Calendar created successfully at {output_path}")
         
     except Exception as e:
-        print(f"[ERROR] An error occurred: {str(e)}")
+        print(f"Error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
