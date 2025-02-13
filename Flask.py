@@ -100,6 +100,19 @@ def get_schedule(filename):
         if not os.path.exists(file_path):
             return jsonify({"error": "File not found"}), 404
         
+        # Special handling for ICS files
+        if filename.endswith('.ics'):
+            response = send_file(
+                file_path,
+                mimetype='text/calendar',
+                as_attachment=True,
+                download_name='schedule.ics'
+            )
+            response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+            response.headers['Content-Disposition'] = 'attachment; filename=schedule.ics'
+            return response
+            
+        # Default handling for other files
         return send_file(file_path, as_attachment=True)
     except Exception as e:
         error_trace = traceback.format_exc()
@@ -123,15 +136,28 @@ def convert_calendar():
         calendar = create_ics_from_json(schedule_data)
         output_filename = os.path.join(SCHEDULE_FOLDER, 'schedule.ics')
 
+        # Write the calendar file
         with open(output_filename, 'wb') as f:
             f.write(calendar.to_ical())
 
-        if not os.path.exists(output_filename):
+        # Verify file was created and has content
+        if not os.path.exists(output_filename) or os.path.getsize(output_filename) == 0:
             return jsonify({"error": "Failed to create calendar file"}), 500
 
-        return jsonify({"message": "Calendar file created successfully", "path": output_filename}), 200
+        # Return the file path for immediate download
+        response = send_file(
+            output_filename,
+            mimetype='text/calendar',
+            as_attachment=True,
+            download_name='schedule.ics'
+        )
+        response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+        response.headers['Content-Disposition'] = 'attachment; filename=schedule.ics'
+        return response
 
     except Exception as e:
+        error_trace = traceback.format_exc()
+        log_error(error_trace)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/courses', methods=['POST'])
